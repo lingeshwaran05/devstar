@@ -55,6 +55,7 @@
           </li>
         </ul>
       {/if}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
       <div
         class="flex justify-between cursor-pointer mb-2"
         on:click={() => (showLanguagesOptions = !showLanguagesOptions)}
