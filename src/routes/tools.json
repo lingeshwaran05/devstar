@@ -123,29 +123,29 @@
         ]
     },
     "custom-handwriting-font": {
-        "name": "",
+        "name": "Custom Handwriting Font",
         "link": "/custom-handwriting-font",
         "description": "",
         "contributors": [
             {
-                "name": "",
-                "githubId": ""
+                "name": "RIYA KUSHWAHA",
+                "githubId": "RIYA1001"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Vaibhav Rathod",
+                "githubId": "VR-Rathod"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Prabir Kumar Majee",
+                "githubId": "prabirkr"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Soumili mondal",
+                "githubId": "Soumelee"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Devishree nadar",
+                "githubId": "devishree2305"
             }
         ]
     },
