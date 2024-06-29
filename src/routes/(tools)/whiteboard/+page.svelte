@@ -22,7 +22,6 @@
     }
 
     .tool-btn {
-      /* background-color: #f0f0f0; */
       border: none;
       padding: 8px 16px;
       margin: 4px;
@@ -85,7 +84,6 @@
           <div class="dropdown-item" data-width="10">10px</div>
           <div class="dropdown-item" data-width="15">15px</div>
           <div class="dropdown-item" data-width="20">20px</div>
-          <!-- Add more widths as needed -->
         </div>
       </div>
       <button id="fill" class="tool-btn"><img src="/src/images/paint-bucket.png" alt=""/></button>
@@ -111,8 +109,12 @@
       let drawingHistory = [];
       let historyIndex = -1;
 
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      function initializeCanvas() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
 
       function startDrawing(e) {
         isDrawing = true;
@@ -137,7 +139,6 @@
         ctx.stroke();
         [lastX, lastY] = [e.offsetX, e.offsetY];
 
-       
         if (!eraserActive) {
           saveDrawingAction();
         }
@@ -172,7 +173,6 @@
         }
       }
 
-      
       canvas.addEventListener('mousedown', startDrawing);
       canvas.addEventListener('mousemove', draw);
       canvas.addEventListener('mouseup', stopDrawing);
@@ -215,7 +215,6 @@
 
       const fillBtn = document.getElementById('fill');
       fillBtn.addEventListener('click', function() {
-        
         hideDropdown();
       });
 
@@ -236,6 +235,22 @@
         hideDropdown();
       });
 
+      window.addEventListener('resize', initializeCanvas);
+      initializeCanvas();
+
+      // Ensure canvas is initialized properly when navigating to the whiteboard
+      function ensureCanvasInitialization() {
+        setTimeout(initializeCanvas, 100);
+      }
+
+      ensureCanvasInitialization();
+
+      window.addEventListener('load', ensureCanvasInitialization);
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+          ensureCanvasInitialization();
+        }
+      });
     });
   </script>
 </body>
