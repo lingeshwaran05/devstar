@@ -136,26 +136,23 @@
         ctx.lineTo(e.offsetX, e.offsetY);
         ctx.stroke();
         [lastX, lastY] = [e.offsetX, e.offsetY];
+      }
 
-       
+      function stopDrawing() {
+        if (!isDrawing) return;
+        isDrawing = false;
+
         if (!eraserActive) {
           saveDrawingAction();
         }
       }
 
-      function stopDrawing() {
-        isDrawing = false;
-        if (!eraserActive && historyIndex < drawingHistory.length - 1) {
+      function saveDrawingAction() {
+        if (historyIndex < drawingHistory.length - 1) {
           drawingHistory = drawingHistory.slice(0, historyIndex + 1);
         }
-      }
-
-      function saveDrawingAction() {
-        historyIndex++;
-        if (historyIndex < drawingHistory.length) {
-          drawingHistory.splice(historyIndex);
-        }
         drawingHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+        historyIndex++;
       }
 
       function undoDrawing() {
@@ -172,7 +169,6 @@
         }
       }
 
-      
       canvas.addEventListener('mousedown', startDrawing);
       canvas.addEventListener('mousemove', draw);
       canvas.addEventListener('mouseup', stopDrawing);
@@ -215,7 +211,6 @@
 
       const fillBtn = document.getElementById('fill');
       fillBtn.addEventListener('click', function() {
-        
         hideDropdown();
       });
 
@@ -236,6 +231,7 @@
         hideDropdown();
       });
 
+      saveDrawingAction();  // Save initial blank state
     });
   </script>
 </body>
