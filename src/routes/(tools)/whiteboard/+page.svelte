@@ -22,7 +22,6 @@
     }
 
     .tool-btn {
-      /* background-color: #f0f0f0; */
       border: none;
       padding: 8px 16px;
       margin: 4px;
@@ -31,20 +30,25 @@
       position: relative;
     }
 
+    .tool-btn img {
+      width: 24px;
+      height: 24px;
+    }
+
     .tool-btn:hover {
       background-color: #e0e0e0;
     }
 
     .dropdown {
       position: absolute;
-      top: calc(100% + 8px); 
+      top: calc(100% + 8px);
       left: 0;
       z-index: 1000;
       display: none;
       background-color: #fff;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
       border-radius: 4px;
-      width: max-content; 
+      width: max-content;
     }
 
     .dropdown.active {
@@ -71,6 +75,19 @@
     .dropdown-item:hover {
       background-color: #f0f0f0;
     }
+
+    .color-palette {
+      display: flex;
+      padding: 8px;
+    }
+
+    .color-swatch {
+      width: 24px;
+      height: 24px;
+      margin: 4px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -85,13 +102,27 @@
           <div class="dropdown-item" data-width="10">10px</div>
           <div class="dropdown-item" data-width="15">15px</div>
           <div class="dropdown-item" data-width="20">20px</div>
-          <!-- Add more widths as needed -->
         </div>
       </div>
-      <button id="fill" class="tool-btn"><img src="/src/images/paint-bucket.png" alt=""/></button>
+      <div class="relative">
+        <button id="fill" class="tool-btn"><img src="/src/images/paint-bucket.png" alt=""/><span class="dropdown-arrow"></span></button>
+        <div id="color-palette-dropdown" class="dropdown">
+          <div class="color-palette">
+            <div class="color-swatch" data-color="#FF0000" style="background-color: #FF0000;"></div>
+            <div class="color-swatch" data-color="#00FF00" style="background-color: #00FF00;"></div>
+            <div class="color-swatch" data-color="#0000FF" style="background-color: #0000FF;"></div>
+            <div class="color-swatch" data-color="#FFFF00" style="background-color: #FFFF00;"></div>
+            <div class="color-swatch" data-color="#FF00FF" style="background-color: #FF00FF;"></div>
+            <div class="color-swatch" data-color="#00FFFF" style="background-color: #00FFFF;"></div>
+            <div class="color-swatch" data-color="#000000" style="background-color: #000000;"></div>
+            <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF;"></div>
+          </div>
+        </div>
+      </div>
       <button id="shapes" class="tool-btn"><img src="/src/images/shapes.png" alt=""/></button>
       <button id="undo" class="tool-btn"><img src="/src/images/undo.png" alt=""/></button>
       <button id="redo" class="tool-btn"><img src="/src/images/redo.png" alt=""/></button>
+      <button id="clear" class="tool-btn"><img src="/src/images/clear.png" alt="Clear Canvas"/></button>
     </div>
     
     <!-- Whiteboard area -->
@@ -110,6 +141,7 @@
       let eraserSize = 10;
       let drawingHistory = [];
       let historyIndex = -1;
+      let fillColor = [0, 0, 0, 255]; // Default fill color is black
 
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
@@ -169,6 +201,55 @@
         }
       }
 
+      function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        saveDrawingAction();
+      }
+
+      function floodFill(x, y, fillColor) {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        const targetColor = getColorAtPixel(data, x, y);
+
+        if (colorsMatch(targetColor, fillColor)) return;
+
+        const stack = [[x, y]];
+
+        while (stack.length) {
+          const [currentX, currentY] = stack.pop();
+          const currentPos = (currentY * canvas.width + currentX) * 4;
+
+          if (!colorsMatch(getColorAtPixel(data, currentX, currentY), targetColor)) continue;
+
+          setColorAtPixel(data, currentX, currentY, fillColor);
+
+          stack.push([currentX + 1, currentY]);
+          stack.push([currentX - 1, currentY]);
+          stack.push([currentX, currentY + 1]);
+          stack.push([currentX, currentY - 1]);
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+        saveDrawingAction();
+      }
+
+      function getColorAtPixel(data, x, y) {
+        const pos = (y * canvas.width + x) * 4;
+        return [data[pos], data[pos + 1], data[pos + 2], data[pos + 3]];
+      }
+
+      function setColorAtPixel(data, x, y, color) {
+        const pos = (y * canvas.width + x) * 4;
+        [data[pos], data[pos + 1], data[pos + 2], data[pos + 3]] = color;
+      }
+
+      function colorsMatch(color1, color2) {
+        return color1[0] === color2[0] &&
+               color1[1] === color2[1] &&
+               color1[2] === color2[2] &&
+               color1[3] === color2[3];
+      }
+
       canvas.addEventListener('mousedown', startDrawing);
       canvas.addEventListener('mousemove', draw);
       canvas.addEventListener('mouseup', stopDrawing);
@@ -176,62 +257,104 @@
 
       let pencilActive = true;
       let eraserActive = false;
+      let fillActive = false;
 
       const pencilBtn = document.getElementById('pencil');
       pencilBtn.addEventListener('click', function() {
         pencilActive = true;
         eraserActive = false;
+        fillActive = false;
         canvas.style.cursor = 'crosshair';
-        hideDropdown();
+        hideDropdowns();
       });
 
       const eraserBtn = document.getElementById('eraser');
       const eraserDropdown = document.getElementById('eraser-width-dropdown');
-      const dropdownArrow = document.querySelector('.dropdown-arrow');
+      const eraserDropdownArrow = eraserBtn.querySelector('.dropdown-arrow');
       eraserBtn.addEventListener('click', function() {
         eraserActive = !eraserActive; 
-        pencilActive = !eraserActive; 
+        pencilActive = !eraserActive;
+        fillActive = false; 
         canvas.style.cursor = eraserActive ? 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\' fill=\'%23ffffff\'%3E%3Cpath fill-rule=\'evenodd\' d=\'M5 13V6h10v7H5zm11 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-5h12zM7 8v2h6V8H7z\' clip-rule=\'evenodd\'/%3E%3C/svg%3E") 14 14, auto' : 'crosshair';
         eraserDropdown.classList.toggle('active');
-        dropdownArrow.classList.toggle('active'); 
+        eraserDropdownArrow.classList.toggle('active'); 
       });
-
-      function hideDropdown() {
-        eraserDropdown.classList.remove('active');
-        dropdownArrow.classList.remove('active'); 
-      }
 
       const dropdownItems = document.querySelectorAll('.dropdown-item');
       dropdownItems.forEach(item => {
         item.addEventListener('click', function() {
           eraserSize = parseInt(this.getAttribute('data-width'));
-          hideDropdown();
+          hideDropdowns();
         });
       });
 
       const fillBtn = document.getElementById('fill');
+      const colorPaletteDropdown = document.getElementById('color-palette-dropdown');
+      const colorPaletteArrow = fillBtn.querySelector('.dropdown-arrow');
       fillBtn.addEventListener('click', function() {
-        hideDropdown();
+        fillActive = !fillActive;
+        pencilActive = !fillActive;
+        eraserActive = false;
+        canvas.style.cursor = fillActive ? 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\' fill=\'%23000000\'%3E%3Cpath fill-rule=\'evenodd\' d=\'M5 13V6h10v7H5zm11 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-5h12zM7 8v2h6V8H7z\' clip-rule=\'evenodd\'/%3E%3C/svg%3E") 14 14, auto' : 'crosshair';
+        colorPaletteDropdown.classList.toggle('active');
+        colorPaletteArrow.classList.toggle('active');
       });
+
+      const colorSwatches = document.querySelectorAll('.color-swatch');
+      colorSwatches.forEach(swatch => {
+        swatch.addEventListener('click', function() {
+          const color = this.getAttribute('data-color');
+          const [r, g, b] = hexToRgb(color);
+          fillColor = [r, g, b, 255];
+          hideDropdowns();
+        });
+      });
+
+      function hideDropdowns() {
+        eraserDropdown.classList.remove('active');
+        eraserDropdownArrow.classList.remove('active');
+        colorPaletteDropdown.classList.remove('active');
+        colorPaletteArrow.classList.remove('active');
+      }
+
+      function hexToRgb(hex) {
+        const bigint = parseInt(hex.slice(1), 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return [r, g, b];
+      }
 
       const shapesBtn = document.getElementById('shapes');
       shapesBtn.addEventListener('click', function() {
-        hideDropdown();
+        hideDropdowns();
       });
 
       const undoBtn = document.getElementById('undo');
       undoBtn.addEventListener('click', function() {
         undoDrawing();
-        hideDropdown();
+        hideDropdowns();
       });
 
       const redoBtn = document.getElementById('redo');
       redoBtn.addEventListener('click', function() {
         redoDrawing();
-        hideDropdown();
+        hideDropdowns();
       });
 
-      saveDrawingAction();  // Save initial blank state
+      const clearBtn = document.getElementById('clear');
+      clearBtn.addEventListener('click', function() {
+        clearCanvas();
+        hideDropdowns();
+      });
+
+      canvas.addEventListener('click', function(e) {
+        if (fillActive) {
+          floodFill(e.offsetX, e.offsetY, fillColor);
+        }
+      });
+
+      saveDrawingAction();
     });
   </script>
 </body>
