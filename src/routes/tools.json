@@ -125,7 +125,7 @@
     "custom-handwriting-font": {
         "name": "Custom Handwriting Font",
         "link": "/custom-handwriting-font",
-        "description": "",
+        "description": "The Custom Handwriting Font Generator is a unique tool that allows you to create a personalized font from your own handwriting. Whether you want to add a personal touch to your documents, create custom greeting cards, or enhance your digital designs, this tool provides a seamless way to transform your handwriting into a digital font.",
         "contributors": [
             {
                 "name": "RIYA KUSHWAHA",
@@ -136,12 +136,12 @@
                 "githubId": "VR-Rathod"
             },
             {
-                "name": "Prabir Kumar Majee",
-                "githubId": "prabirkr"
-            },
-            {
                 "name": "Soumili mondal",
                 "githubId": "Soumelee"
+            },
+            {
+                "name": "Prabir Kumar Majee",
+                "githubId": "prabirkr"
             },
             {
                 "name": "Devishree nadar",
