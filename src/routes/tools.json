@@ -391,7 +391,7 @@
         ]
     },
     "pastebin": {
-        "name": "PasteBin",
+        "name": "Pastebin",
         "link": "/pastebin",
         "description": "Discover our powerful pastebin tool designed to simplify code sharing and collaboration. Upload, store, and share snippets of code in various programming languages effortlessly. Get a unique link for each snippet for easy sharing and access, making collaboration seamless and efficient.",
         "contributors": [
