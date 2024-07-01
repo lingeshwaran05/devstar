@@ -36,6 +36,7 @@
 		"express": "^4.19.2",
 		"install": "^0.13.0",
 		"jspdf": "^2.5.1",
+		"node-schedule": "^2.1.1",
 		"pdf-lib": "^1.17.1",
 		"prisma": "^5.16.1",
 		"sqlite": "^5.1.1",
