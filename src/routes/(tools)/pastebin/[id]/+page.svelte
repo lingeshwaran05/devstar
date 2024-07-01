@@ -1,3 +1,4 @@
+<!-- svelte-ignore missing-declaration -->
 <!-- routes/pastebin/[id]/+page.svelte -->
 <script>
   import { onMount } from 'svelte';

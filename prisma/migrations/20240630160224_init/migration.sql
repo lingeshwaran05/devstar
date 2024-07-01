@@ -1,8 +1,0 @@
--- CreateTable
-CREATE TABLE "Paste" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "content" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "expiresAt" DATETIME NOT NULL
-);
