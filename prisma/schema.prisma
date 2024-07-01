@@ -8,9 +8,10 @@ datasource db {
 }
 
 model Paste {
-  id        Int      @id @default(autoincrement())
-  content   String
-  name      String
-  createdAt DateTime @default(now())
-  expiresAt DateTime
+  id String @id
+  title String
+  text String
+  password String
+  encrypted Boolean
+  paste_expiration String
 }
