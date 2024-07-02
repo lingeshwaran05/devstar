@@ -105,6 +105,7 @@
                             class="dropdown-arrow"
                         ></span></button
                     >
+
                     <div id="eraser-width-dropdown" class="dropdown">
                         <div class="range-slider">
                             <input
@@ -173,6 +174,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="relative">
                     <button id="shapes" class="tool-btn"
                         ><img src="/src/images/shapes.png" alt="" /><span
@@ -189,6 +191,9 @@
                         <div class="dropdown-item" data-shape="line">Line</div>
                     </div>
                 </div>
+                <button id="add-image" class="tool-btn"
+                    ><img src="/src/images/image.png" alt="" /></button
+                >
                 <button id="undo" class="tool-btn"
                     ><img src="/src/images/undo.png" alt="" /></button
                 >
@@ -488,6 +493,12 @@
                             shape = this.getAttribute("data-shape");
                             hideDropdowns();
                         });
+                    });
+
+                document
+                    .getElementById("add-image")
+                    .addEventListener("click", () => {
+                        // Anurag call your function here
                     });
 
                 document
