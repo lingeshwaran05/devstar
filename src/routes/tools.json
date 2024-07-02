@@ -418,9 +418,9 @@
         ]
     },
     "pastebin": {
-        "name": "",
+        "name": "Pastebin",
         "link": "/pastebin",
-        "description": "",
+        "description": "The Pastebin tool is a web application that allows users to upload and share text online for a set period of time. It is commonly used for sharing code snippets, error logs, or any text content that is too large to send directly through email or instant messaging. The tool provides a simple way to share text data with others by generating a unique URL for each uploaded text snippet, which can then be shared. It's a valuable resource for developers, system administrators, and anyone needing to share text information quickly and efficiently.",
         "contributors": [
             {
                 "name": "Sachin Mhetre",
