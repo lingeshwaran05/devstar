@@ -106,10 +106,19 @@
                         ></span></button
                     >
                     <div id="eraser-width-dropdown" class="dropdown">
-                        <div class="dropdown-item" data-width="5">5px</div>
-                        <div class="dropdown-item" data-width="10">10px</div>
-                        <div class="dropdown-item" data-width="15">15px</div>
-                        <div class="dropdown-item" data-width="20">20px</div>
+                        <div class="range-slider">
+                            <input
+                                class="input-range"
+                                orient="vertical"
+                                id="sliderSelection"
+                                type="range"
+                                step="2"
+                                value="5"
+                                min="2"
+                                max="20"
+                            />
+                            <span class="range-value"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -439,12 +448,11 @@
                         );
                     });
 
-                document.querySelectorAll(".dropdown-item").forEach((item) => {
-                    item.addEventListener("click", function () {
-                        eraserSize = parseInt(this.getAttribute("data-width"));
-                        hideDropdowns();
+                document
+                    .getElementById("sliderSelection")
+                    .addEventListener("input", function () {
+                        eraserSize = parseInt(this.value);
                     });
-                });
 
                 document
                     .getElementById("fill")
