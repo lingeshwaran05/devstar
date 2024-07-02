@@ -19,6 +19,8 @@
   import 'prismjs/components/prism-javascript';
   import 'prismjs/components/prism-css';
   import 'prismjs/components/prism-markup';
+  import { Dropdown, DropdownItem } from 'flowbite-svelte';
+  
   let selectedLanguage = 'markup';
   
 	function formatExpirationTime(expirationTimestamp: number): string {
@@ -52,23 +54,35 @@
     }
   }
   function clearFields() {
-  const titleInput = document.getElementById('title') as HTMLInputElement;
-  const textArea = document.getElementById('text') as HTMLTextAreaElement;
-  const fileInput = document.getElementById('file') as HTMLInputElement;
-  const pasteExpirationSelect = document.getElementById('paste_expiration') as HTMLSelectElement;
-  
-  titleInput.value = '';
-  textArea.value = '';
-  fileInput.value = '';
-  pasteExpirationSelect.value = "1 minute"; // Reset the dropdown to "1 minute"
+	const titleInput = document.getElementById('title') as HTMLInputElement;
+    const textArea = document.getElementById('text') as HTMLTextAreaElement;
+    const fileInput = document.getElementById('file') as HTMLInputElement;
+    const pasteExpirationSelect = document.getElementById('paste_expiration') as HTMLSelectElement;
+    const codeBlock = document.getElementById('code-block') as HTMLElement;
 
+    titleInput.value = '';
+    textArea.value = '';
+    fileInput.value = '';
+    pasteExpirationSelect.value = "1 minute"; // Reset the dropdown to "1 minute"
+    codeBlock.innerHTML = ''; // Clear the highlighted text
+    textArea.style.display = 'block'; // Show the textarea
+    codeBlock.style.display = 'none'; // Hide the code block
 }
+
 function highlightSyntax() {
     const textArea = document.getElementById('text') as HTMLTextAreaElement;
     const codeBlock = document.getElementById('code-block') as HTMLElement;
-    codeBlock.innerHTML = Prism.highlight(textArea.value, Prism.languages[selectedLanguage], selectedLanguage);
+    
+    codeBlock.style.display = 'block';
+    textArea.style.display = 'none'; 
+    codeBlock.innerHTML = `<pre class="language-${selectedLanguage}"><code>${Prism.highlight(textArea.value, Prism.languages[selectedLanguage], selectedLanguage)}</code></pre>`;
   }
-
+  function editCode() {
+    const textArea = document.getElementById('text') as HTMLTextAreaElement;
+    const codeBlock = document.getElementById('code-block') as HTMLElement;
+    textArea.style.display = 'block'; // Show the textarea for editing
+    codeBlock.style.display = 'none'; // Hide the highlighted code
+  }
   </script>
   
   <div class="min-h-screen bg-gray-900 text-white flex items-center justify-center">
@@ -88,12 +102,19 @@ function highlightSyntax() {
 			  class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
 			  required
 			/>
-			<div class="text-black"> <select bind:value={selectedLanguage} on:change={highlightSyntax}>
+			<div class="text-black p-4"> 
+		  <!-- <select bind:value={selectedLanguage} on:change={highlightSyntax}>
 			<option value="markup">HTML</option>
 			<option value="css">CSS</option>
 			<option value="javascript">JavaScript</option>
-			<!-- Add other languages as needed -->
-		  </select></div>
+		  </select> -->
+		  <label for="language-select" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 m" >Select Language</label>
+		  <Dropdown id="language-select" style="inline={true}" >
+			<DropdownItem on:click={() => { selectedLanguage = 'javascript'; highlightSyntax(); }}>JavaScript</DropdownItem>
+			<DropdownItem on:click={() => { selectedLanguage = 'css'; highlightSyntax(); }}>CSS</DropdownItem>
+			<DropdownItem on:click={() => { selectedLanguage = 'markup'; highlightSyntax(); }}>HTML</DropdownItem>
+		  </Dropdown>
+		</div>
 			
 		  </div>
 		 
@@ -119,6 +140,7 @@ function highlightSyntax() {
 			  class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
 			  required
 			></textarea>
+			<div id="code-block" class="bg-gray-700 text-white rounded-md px-4 py-2 w-full" style="display:none;" on:click={editCode}></div>
 		  </div>
 		  <div>
 			<label for="paste_expiration" class="block font-medium mb-2">Paste Expiration</label>
@@ -137,7 +159,7 @@ function highlightSyntax() {
 		  </div>
 		  <button
 			type="submit"
-			class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+			class="bg-green-600 hover:bg-lime-600 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
 		  >
 			Submit
 		  </button>
