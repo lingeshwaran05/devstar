@@ -1,9 +1,31 @@
-<script lang="ts">
+<!-- 
+   +page.svelte: This file is responsible for displaying the main page of the Pastebin tool, including the form to create a new paste and a list of recent pastes.
+   
+   +page.server.js: This file contains the server-side logic for handling the creation of new pastes and loading all pastes.
+     
+   api/+server.js: This file manages API endpoints for creating and fetching pastes.
+   
+   [id]/+page.svelte: This file handles displaying a specific paste, including decryption if needed.
+
+    [id]/+server.js: This file manages fetching a specific paste by its ID.
+
+	snippets/+server.js: This file handles the creation of new code snippets
+  -->
+ <script lang="ts">
 	export let data: { pastes: any[] };
+  import Prism from 'prismjs';
+  import 'prismjs/themes/prism-tomorrow.css'; // Import the theme you prefer
+  // Import languages you need
+  import 'prismjs/components/prism-javascript';
+  import 'prismjs/components/prism-css';
+  import 'prismjs/components/prism-markup';
+  let selectedLanguage = 'markup';
   
 	function formatExpirationTime(expirationTimestamp: number): string {
 	  const now = Date.now();
 	  const secondsRemaining = Math.floor((expirationTimestamp - now) / 1000);
+
+	  
   
 	  if (secondsRemaining <= 0) {
 		return 'Expired';
@@ -17,6 +39,36 @@
 		return `${Math.floor(secondsRemaining / 86400)} days`;
 	  }
 	}
+	function handleFileSelection(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const textArea = document.getElementById('text') as HTMLTextAreaElement;
+        textArea.value = e.target.result.toString();
+        highlightSyntax(); // Call highlightSyntax when file is loaded
+      };
+      reader.readAsText(input.files[0]);
+    }
+  }
+  function clearFields() {
+  const titleInput = document.getElementById('title') as HTMLInputElement;
+  const textArea = document.getElementById('text') as HTMLTextAreaElement;
+  const fileInput = document.getElementById('file') as HTMLInputElement;
+  const pasteExpirationSelect = document.getElementById('paste_expiration') as HTMLSelectElement;
+  
+  titleInput.value = '';
+  textArea.value = '';
+  fileInput.value = '';
+  pasteExpirationSelect.value = "1 minute"; // Reset the dropdown to "1 minute"
+
+}
+function highlightSyntax() {
+    const textArea = document.getElementById('text') as HTMLTextAreaElement;
+    const codeBlock = document.getElementById('code-block') as HTMLElement;
+    codeBlock.innerHTML = Prism.highlight(textArea.value, Prism.languages[selectedLanguage], selectedLanguage);
+  }
+
   </script>
   
   <div class="min-h-screen bg-gray-900 text-white flex items-center justify-center">
@@ -36,7 +88,27 @@
 			  class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
 			  required
 			/>
+			<div class="text-black"> <select bind:value={selectedLanguage} on:change={highlightSyntax}>
+			<option value="markup">HTML</option>
+			<option value="css">CSS</option>
+			<option value="javascript">JavaScript</option>
+			<!-- Add other languages as needed -->
+		  </select></div>
+			
 		  </div>
+		 
+		  
+		  <div>
+    <label for="file" class="block font-medium mb-2">Select File</label>
+    <input
+      type="file"
+      id="file"
+      name="file"
+      class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      accept=".txt,.c,.cpp" on:change="{handleFileSelection}"
+    />
+  </div>  
+        
 		  <div>
 			<label for="text" class="block font-medium mb-2">Text</label>
 			<textarea
@@ -47,16 +119,6 @@
 			  class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
 			  required
 			></textarea>
-		  </div>
-		  <div>
-			<label for="password" class="block font-medium mb-2">Password (Optional)</label>
-			<input
-			  type="password"
-			  id="password"
-			  name="password"
-			  placeholder="Enter a password"
-			  class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
-			/>
 		  </div>
 		  <div>
 			<label for="paste_expiration" class="block font-medium mb-2">Paste Expiration</label>
@@ -70,16 +132,8 @@
 			  <option value="10 minutes">10 Minutes</option>
 			  <option value="1 hour">1 Hour</option>
 			  <option value="1 day">1 Day</option>
+			  <option value="never">Never</option>
 			</select>
-		  </div>
-		  <div class="flex items-center">
-			<input
-			  type="checkbox"
-			  id="encrypt"
-			  name="encrypt"
-			  class="h-4 w-4 text-indigo-600 bg-gray-700 rounded focus:ring-indigo-500"
-			/>
-			<label for="encrypt" class="ml-2 block font-medium">Encrypt Paste</label>
 		  </div>
 		  <button
 			type="submit"
@@ -87,6 +141,13 @@
 		  >
 			Submit
 		  </button>
+		  <button
+            type="button"
+            class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            on:click={clearFields}
+          >
+            Clear
+          </button>
 		</form>
 	  </div>
   
@@ -101,6 +162,7 @@
 				<p class="text-sm text-gray-400">
 				  Expires in {formatExpirationTime(paste.paste_expiration)}
 				</p>
+				<a href={`/pastebin/${paste.id}`} class="text-indigo-400">View Paste</a>
 			  </li>
 			{/each}
 		  </ul>
@@ -110,4 +172,5 @@
 	  </div>
 	</div>
   </div>
-  
+ 
+
