@@ -352,6 +352,33 @@
             }
         ]
     },
+    "number-to-word": {
+        "name": "",
+        "link": "/number-to-word",
+        "description": "",
+        "contributors": [
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            }
+        ]
+    },
     "online-video-editor": {
         "name": "",
         "link": "/online-video-editor",
@@ -396,8 +423,8 @@
         "description": "",
         "contributors": [
             {
-                "name": "",
-                "githubId": ""
+                "name": "Sachin Mhetre",
+                "githubId": "https://github.com/SachinMhetre678"
             },
             {
                 "name": "",
@@ -420,6 +447,33 @@
     "pdf-2-scan": {
         "name": "",
         "link": "/pdf-2-scan",
+        "description": "",
+        "contributors": [
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            }
+        ]
+    },
+    "permutations-of-a-string": {
+        "name": "",
+        "link": "/permutations-of-a-string",
         "description": "",
         "contributors": [
             {
@@ -478,6 +532,33 @@
             {
                 "name": "Hannan Satopay",
                 "githubId": "hannansatopay"
+            }
+        ]
+    },
+    "reverse-string": {
+        "name": "",
+        "link": "/reverse-string",
+        "description": "",
+        "contributors": [
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
             }
         ]
     },
