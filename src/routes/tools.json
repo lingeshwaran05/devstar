@@ -450,6 +450,33 @@
         "description": "",
         "contributors": [
             {
+                "name": "Sachin Mhetre",
+                "githubId": "https://github.com/SachinMhetre678"
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            }
+        ]
+    },
+    "permutations-of-a-string": {
+        "name": "",
+        "link": "/permutations-of-a-string",
+        "description": "",
+        "contributors": [
+            {
                 "name": "",
                 "githubId": ""
             },
