@@ -225,9 +225,9 @@
             }
         ]
     },
-    "Gradient-generator": {
+    "gradient-generator": {
         "name": "Gradient Generator",
-        "link": "/Gradient-generator",
+        "link": "/gradient-generator",
         "description": "The Gradient Generator is a tool for Developers which allows you to create Gradient between 2 Colors and Copy its CSS Output.",
         "contributors": [
             {
@@ -418,8 +418,35 @@
         ]
     },
     "pastebin": {
-        "name": "",
+        "name": "Pastebin",
         "link": "/pastebin",
+        "description": "The Pastebin tool is a web application that allows users to upload and share text online for a set period of time. It is commonly used for sharing code snippets, error logs, or any text content that is too large to send directly through email or instant messaging. The tool provides a simple way to share text data with others by generating a unique URL for each uploaded text snippet, which can then be shared. It's a valuable resource for developers, system administrators, and anyone needing to share text information quickly and efficiently.",
+        "contributors": [
+            {
+                "name": "Sachin Mhetre",
+                "githubId": "https://github.com/SachinMhetre678"
+            },
+            {
+                "name": "Saiesh Gaonkar",
+                "githubId": "https://github.com/Saiesh-Gaonkar"
+            },
+            {
+                "name": "Samaan Sayed",
+                "githubId": "https://github.com/Samaanl"
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            }
+        ]
+    },
+    "pdf-2-scan": {
+        "name": "",
+        "link": "/pdf-2-scan",
         "description": "",
         "contributors": [
             {
@@ -444,9 +471,9 @@
             }
         ]
     },
-    "pdf-2-scan": {
+    "permutations-of-a-string": {
         "name": "",
-        "link": "/pdf-2-scan",
+        "link": "/permutations-of-a-string",
         "description": "",
         "contributors": [
             {

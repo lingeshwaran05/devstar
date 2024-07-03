@@ -1,14 +1,12 @@
-<!-- svelte-ignore missing-declaration -->
-<!-- routes/pastebin/[id]/+page.svelte -->
-<script>
+
+ <script>
   import { onMount } from 'svelte';
-  import { decryptData } from '$lib/encryptUtil';
+  import { page } from '$app/stores'; // Import $page from $app/stores
 
   let paste = null;
-  let showPassword = false;
 
   onMount(async () => {
-    const id = $page.params.id;
+    const id = $page.params.id; // Now $page is correctly imported and can be used
     const response = await fetch(`/pastebin/api/${id}`);
 
     if (response.ok) {
@@ -21,10 +19,6 @@
       console.error('Error fetching paste:', response.status);
     }
   });
-
-  function togglePassword() {
-    showPassword = !showPassword;
-  }
 
   function formatExpirationTime(expirationTimestamp) {
     const secondsRemaining = Math.floor((expirationTimestamp - Date.now()) / 1000);
@@ -47,19 +41,10 @@
   <div class="container mx-auto my-8">
     <div class="bg-white rounded-lg shadow-md p-6">
       <h1 class="text-2xl font-bold mb-4">{paste.title}</h1>
-      {#if paste.encrypted}
-        {#if showPassword}
-          <p class="mb-4">{decryptData(paste.text)}</p>
-        {:else}
-          <p class="mb-4">This paste is encrypted. Enter the password to view the content.</p>
-          <button class="btn btn-primary" on:click={togglePassword}>Enter Password</button>
-        {/if}
-      {:else}
-        <p class="mb-4">{paste.text}</p>
-      {/if}
+      <p class="mb-4">{paste.text}</p>
       <div class="flex justify-end">
         <span class="badge badge-secondary">
-          {paste.encrypted ? 'Encrypted' : 'Not Encrypted'}
+          Not Encrypted
         </span>
       </div>
       <div class="card-actions justify-end">
@@ -76,3 +61,4 @@
     </div>
   </div>
 {/if}
+

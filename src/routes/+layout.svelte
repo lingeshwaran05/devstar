@@ -27,7 +27,7 @@
 </svelte:head>
 
 <header
-	class="sticky top-0 z-40 flex-none mx-auto w-full bg-white dark:bg-gray-900 fixed left-0 top-0 z-30 border-b border-gray-200 dark:border-gray-700"
+	class=" sticky flex-none mx-auto w-full bg-white dark:bg-gray-900  left-0 top-0 z-30 border-b border-gray-200 dark:border-gray-700"
 >
 	<div class="w-full px-3 py-3 mx-auto lg:flex lg:justify-between max-w-8xl lg:px-3">
 		<Navbar let:hidden let:toggle>
@@ -69,7 +69,7 @@
 					<NavLi href="/about" active={$page.url.pathname === '/about'}>About</NavLi>
 					<NavLi href="/contact" active={$page.url.pathname === '/contact'}>Contact</NavLi>
 				</NavUl>
-				<div class="lg:self-center flex items-center mb-4 lg:mb-0 hidden mr-3 lg:flex">
+				<div class="lg:self-center items-center mb-4 lg:mb-0 hidden mr-3 lg:flex">
 					<div class="items-center mr-3 flex">
 						<a
 							href="https://github.com/hannansatopay/devstar"

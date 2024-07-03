@@ -1,5 +1,6 @@
+
 import { error } from "@sveltejs/kit";
-import { encryptData, uniqueId, hash } from "$lib/encryptUtil";
+import { uniqueId, hash } from "$lib/encryptUtil";
 import { insertPaste, initializeDatabase, getAllPastes } from "$lib/dataStore";
 
 await initializeDatabase();
@@ -8,24 +9,16 @@ export const actions = {
   createPaste: async ({ request }) => {
     const formData = await request.formData();
     let text = formData.get("text");
-    const password = formData.get("password");
     const title = formData.get("title");
     const paste_expiration = formData.get("paste_expiration");
-    const encrypted = formData.get("encrypt") ? true : false;
-
-    if (encrypted) {
-      text = encryptData(text);
-    }
 
     try {
-      const expirationTimestamp = Date.now() + parseExpirationTime(paste_expiration);
+      const expirationTimestamp = paste_expiration === 'never' ? null : Date.now() + parseExpirationTime(paste_expiration);
       const dataToBeInserted = {
         id: uniqueId(),
         text,
         title,
-        password: await hash(password),
         paste_expiration: expirationTimestamp,
-        encrypted,
       };
 
       await insertPaste(dataToBeInserted);
