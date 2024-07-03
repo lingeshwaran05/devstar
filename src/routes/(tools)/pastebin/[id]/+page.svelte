@@ -1,30 +1,30 @@
-
- <script>
-  import { onMount } from 'svelte';
-  import { page } from '$app/stores'; // Import $page from $app/stores
+<script>
+  import { onMount } from "svelte";
+  import { page } from "$app/stores"; // Import $page from $app/stores
 
   let paste = null;
 
   onMount(async () => {
     const id = $page.params.id; // Now $page is correctly imported and can be used
-    const response = await fetch(`/pastebin/api/${id}`);
-
-    if (response.ok) {
-      paste = await response.json();
-    } else if (response.status === 404) {
-      // Paste not found or expired
-      paste = null;
-    } else {
-      // Handle other errors
-      console.error('Error fetching paste:', response.status);
-    }
+    console.log(`fetching /pastebin/api?id=${id}`);
+    fetch(`/pastebin/api?id=${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        // console.log("Fetched paste:", data.id);
+        paste = data.id;
+      })
+      .catch((error) => {
+        console.log("Error fetching paste:", error);
+      });
   });
 
   function formatExpirationTime(expirationTimestamp) {
-    const secondsRemaining = Math.floor((expirationTimestamp - Date.now()) / 1000);
+    const secondsRemaining = Math.floor(
+      (expirationTimestamp - Date.now()) / 1000
+    );
 
     if (secondsRemaining <= 0) {
-      return 'Expired';
+      return "Expired";
     } else if (secondsRemaining < 60) {
       return `${secondsRemaining} seconds`;
     } else if (secondsRemaining < 3600) {
@@ -43,9 +43,7 @@
       <h1 class="text-2xl font-bold mb-4">{paste.title}</h1>
       <p class="mb-4">{paste.text}</p>
       <div class="flex justify-end">
-        <span class="badge badge-secondary">
-          Not Encrypted
-        </span>
+        <span class="badge badge-secondary"> Not Encrypted </span>
       </div>
       <div class="card-actions justify-end">
         <div class="badge badge-outline">
@@ -61,4 +59,3 @@
     </div>
   </div>
 {/if}
-

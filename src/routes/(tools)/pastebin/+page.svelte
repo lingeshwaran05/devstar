@@ -11,42 +11,40 @@
 
 	snippets/+server.js: This file handles the creation of new code snippets
   -->
- <script lang="ts">
-	export let data: { pastes: any[] };
-  import Prism from 'prismjs';
-  import 'prismjs/themes/prism-tomorrow.css'; // Import the theme you prefer
+<script lang="ts">
+  export let data: { pastes: any[] };
+  import Prism from "prismjs";
+  import "prismjs/themes/prism-tomorrow.css"; // Import the theme you prefer
   // Import languages you need
-  import 'prismjs/components/prism-javascript';
-  import 'prismjs/components/prism-css';
-  import 'prismjs/components/prism-markup';
-  import { Dropdown, DropdownItem } from 'flowbite-svelte';
-  
-  let selectedLanguage = 'markup';
-  
-	function formatExpirationTime(expirationTimestamp: number): string {
-	  const now = Date.now();
-	  const secondsRemaining = Math.floor((expirationTimestamp - now) / 1000);
+  import "prismjs/components/prism-javascript";
+  import "prismjs/components/prism-css";
+  import "prismjs/components/prism-markup";
+  import { Dropdown, DropdownItem } from "flowbite-svelte";
 
-	  
-  
-	  if (secondsRemaining <= 0) {
-		return 'Expired';
-	  } else if (secondsRemaining < 60) {
-		return `${secondsRemaining} seconds`;
-	  } else if (secondsRemaining < 3600) {
-		return `${Math.floor(secondsRemaining / 60)} minutes`;
-	  } else if (secondsRemaining < 86400) {
-		return `${Math.floor(secondsRemaining / 3600)} hours`;
-	  } else {
-		return `${Math.floor(secondsRemaining / 86400)} days`;
-	  }
-	}
-	function handleFileSelection(event: Event) {
+  let selectedLanguage = "markup";
+
+  function formatExpirationTime(expirationTimestamp: number): string {
+    const now = Date.now();
+    const secondsRemaining = Math.floor((expirationTimestamp - now) / 1000);
+
+    if (secondsRemaining <= 0) {
+      return "Expired";
+    } else if (secondsRemaining < 60) {
+      return `${secondsRemaining} seconds`;
+    } else if (secondsRemaining < 3600) {
+      return `${Math.floor(secondsRemaining / 60)} minutes`;
+    } else if (secondsRemaining < 86400) {
+      return `${Math.floor(secondsRemaining / 3600)} hours`;
+    } else {
+      return `${Math.floor(secondsRemaining / 86400)} days`;
+    }
+  }
+  function handleFileSelection(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const reader = new FileReader();
-      reader.onload = function(e) {
-        const textArea = document.getElementById('text') as HTMLTextAreaElement;
+      reader.onload = function (e) {
+        const textArea = document.getElementById("text") as HTMLTextAreaElement;
         textArea.value = e.target.result.toString();
         highlightSyntax(); // Call highlightSyntax when file is loaded
       };
@@ -54,145 +52,174 @@
     }
   }
   function clearFields() {
-	const titleInput = document.getElementById('title') as HTMLInputElement;
-    const textArea = document.getElementById('text') as HTMLTextAreaElement;
-    const fileInput = document.getElementById('file') as HTMLInputElement;
-    const pasteExpirationSelect = document.getElementById('paste_expiration') as HTMLSelectElement;
-    const codeBlock = document.getElementById('code-block') as HTMLElement;
+    const titleInput = document.getElementById("title") as HTMLInputElement;
+    const textArea = document.getElementById("text") as HTMLTextAreaElement;
+    const fileInput = document.getElementById("file") as HTMLInputElement;
+    const pasteExpirationSelect = document.getElementById(
+      "paste_expiration"
+    ) as HTMLSelectElement;
+    const codeBlock = document.getElementById("code-block") as HTMLElement;
 
-    titleInput.value = '';
-    textArea.value = '';
-    fileInput.value = '';
+    titleInput.value = "";
+    textArea.value = "";
+    fileInput.value = "";
     pasteExpirationSelect.value = "1 minute"; // Reset the dropdown to "1 minute"
-    codeBlock.innerHTML = ''; // Clear the highlighted text
-    textArea.style.display = 'block'; // Show the textarea
-    codeBlock.style.display = 'none'; // Hide the code block
-}
+    codeBlock.innerHTML = ""; // Clear the highlighted text
+    textArea.style.display = "block"; // Show the textarea
+    codeBlock.style.display = "none"; // Hide the code block
+  }
 
-function highlightSyntax() {
-    const textArea = document.getElementById('text') as HTMLTextAreaElement;
-    const codeBlock = document.getElementById('code-block') as HTMLElement;
-    
-    codeBlock.style.display = 'block';
-    textArea.style.display = 'none'; 
+  function highlightSyntax() {
+    const textArea = document.getElementById("text") as HTMLTextAreaElement;
+    const codeBlock = document.getElementById("code-block") as HTMLElement;
+
+    codeBlock.style.display = "block";
+    textArea.style.display = "none";
     codeBlock.innerHTML = `<pre class="language-${selectedLanguage}"><code>${Prism.highlight(textArea.value, Prism.languages[selectedLanguage], selectedLanguage)}</code></pre>`;
   }
   function editCode() {
-    const textArea = document.getElementById('text') as HTMLTextAreaElement;
-    const codeBlock = document.getElementById('code-block') as HTMLElement;
-    textArea.style.display = 'block'; // Show the textarea for editing
-    codeBlock.style.display = 'none'; // Hide the highlighted code
+    const textArea = document.getElementById("text") as HTMLTextAreaElement;
+    const codeBlock = document.getElementById("code-block") as HTMLElement;
+    textArea.style.display = "block"; // Show the textarea for editing
+    codeBlock.style.display = "none"; // Hide the highlighted code
   }
-  </script>
-  
-  <div class="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-	<div class="max-w-4xl w-full">
-	  <h1 class="text-4xl font-bold mb-8">Pastebin</h1>
-  
-	  <div class="bg-gray-800 rounded-lg shadow-lg p-8 mb-8">
-		<h2 class="text-2xl font-bold mb-4">Create a New Paste</h2>
-		<form method="POST" action="?/createPaste" class="space-y-4">
-		  <div>
-			<label for="title" class="block font-medium mb-2">Title</label>
-			<input
-			  type="text"
-			  id="title"
-			  name="title"
-			  placeholder="Enter a title"
-			  class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
-			  required
-			/>
-			<div class="text-black p-4"> 
-		  <!-- <select bind:value={selectedLanguage} on:change={highlightSyntax}>
+</script>
+
+<div
+  class="min-h-screen bg-gray-900 text-white flex items-center justify-center"
+>
+  <div class="max-w-4xl w-full">
+    <h1 class="text-4xl font-bold mb-8">Pastebin</h1>
+
+    <div class="bg-gray-800 rounded-lg shadow-lg p-8 mb-8">
+      <h2 class="text-2xl font-bold mb-4">Create a New Paste</h2>
+      <form method="POST" action="?/createPaste" class="space-y-4">
+        <div>
+          <label for="title" class="block font-medium mb-2">Title</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            placeholder="Enter a title"
+            class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
+          />
+          <div class="text-black p-4">
+            <!-- <select bind:value={selectedLanguage} on:change={highlightSyntax}>
 			<option value="markup">HTML</option>
 			<option value="css">CSS</option>
 			<option value="javascript">JavaScript</option>
 		  </select> -->
-		  <label for="language-select" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 m" >Select Language</label>
-		  <Dropdown id="language-select" style="inline={true}" >
-			<DropdownItem on:click={() => { selectedLanguage = 'javascript'; highlightSyntax(); }}>JavaScript</DropdownItem>
-			<DropdownItem on:click={() => { selectedLanguage = 'css'; highlightSyntax(); }}>CSS</DropdownItem>
-			<DropdownItem on:click={() => { selectedLanguage = 'markup'; highlightSyntax(); }}>HTML</DropdownItem>
-		  </Dropdown>
-		</div>
-			
-		  </div>
-		 
-		  
-		  <div>
-    <label for="file" class="block font-medium mb-2">Select File</label>
-    <input
-      type="file"
-      id="file"
-      name="file"
-      class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      accept=".txt,.c,.cpp" on:change="{handleFileSelection}"
-    />
-  </div>  
-        
-		  <div>
-			<label for="text" class="block font-medium mb-2">Text</label>
-			<textarea
-			  id="text"
-			  name="text"
-			  rows="5"
-			  placeholder="Enter your text here"
-			  class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
-			  required
-			></textarea>
-			<div id="code-block" class="bg-gray-700 text-white rounded-md px-4 py-2 w-full" style="display:none;" on:click={editCode}></div>
-		  </div>
-		  <div>
-			<label for="paste_expiration" class="block font-medium mb-2">Paste Expiration</label>
-			<select
-			  id="paste_expiration"
-			  name="paste_expiration"
-			  class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
-			>
-			  <option value="1 minute">1 Minute</option>
-			  <option value="5 minutes">5 Minutes</option>
-			  <option value="10 minutes">10 Minutes</option>
-			  <option value="1 hour">1 Hour</option>
-			  <option value="1 day">1 Day</option>
-			  <option value="never">Never</option>
-			</select>
-		  </div>
-		  <button
-			type="submit"
-			class="bg-green-600 hover:bg-lime-600 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-		  >
-			Submit
-		  </button>
-		  <button
-            type="button"
-            class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-            on:click={clearFields}
-          >
-            Clear
-          </button>
-		</form>
-	  </div>
-  
-	  <div class="bg-gray-800 rounded-lg shadow-lg p-8">
-		<h2 class="text-2xl font-bold mb-4">Recent Pastes</h2>
-		{#if data.pastes && data.pastes.length > 0}
-		  <ul class="space-y-4">
-			{#each data.pastes as paste}
-			  <li class="bg-gray-700 rounded-lg p-4">
-				<h3 class="text-xl font-bold mb-2">{paste.title}</h3>
-				<p class="mb-2">{paste.text}</p>
-				<p class="text-sm text-gray-400">
-				  Expires in {formatExpirationTime(paste.paste_expiration)}
-				</p>
-				<a href={`/pastebin/${paste.id}`} class="text-indigo-400">View Paste</a>
-			  </li>
-			{/each}
-		  </ul>
-		{:else}
-		  <p>No pastes found.</p>
-		{/if}
-	  </div>
-	</div>
-  </div>
- 
+            <label
+              for="language-select"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 m"
+              >Select Language</label
+            >
+            <Dropdown id="language-select" style="inline={true}">
+              <DropdownItem
+                on:click={() => {
+                  selectedLanguage = "javascript";
+                  highlightSyntax();
+                }}>JavaScript</DropdownItem
+              >
+              <DropdownItem
+                on:click={() => {
+                  selectedLanguage = "css";
+                  highlightSyntax();
+                }}>CSS</DropdownItem
+              >
+              <DropdownItem
+                on:click={() => {
+                  selectedLanguage = "markup";
+                  highlightSyntax();
+                }}>HTML</DropdownItem
+              >
+            </Dropdown>
+          </div>
+        </div>
 
+        <div>
+          <label for="file" class="block font-medium mb-2">Select File</label>
+          <input
+            type="file"
+            id="file"
+            name="file"
+            class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            accept=".txt,.c,.cpp"
+            on:change={handleFileSelection}
+          />
+        </div>
+
+        <div>
+          <label for="text" class="block font-medium mb-2">Text</label>
+          <textarea
+            id="text"
+            name="text"
+            rows="5"
+            placeholder="Enter your text here"
+            class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
+          ></textarea>
+          <div
+            id="code-block"
+            class="bg-gray-700 text-white rounded-md px-4 py-2 w-full"
+            style="display:none;"
+            on:click={editCode}
+          ></div>
+        </div>
+        <div>
+          <label for="paste_expiration" class="block font-medium mb-2"
+            >Paste Expiration</label
+          >
+          <select
+            id="paste_expiration"
+            name="paste_expiration"
+            class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="1 minute">1 Minute</option>
+            <option value="5 minutes">5 Minutes</option>
+            <option value="10 minutes">10 Minutes</option>
+            <option value="1 hour">1 Hour</option>
+            <option value="1 day">1 Day</option>
+            <option value="never">Never</option>
+          </select>
+        </div>
+        <button
+          type="submit"
+          class="bg-green-600 hover:bg-lime-600 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          Submit
+        </button>
+        <button
+          type="button"
+          class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+          on:click={clearFields}
+        >
+          Clear
+        </button>
+      </form>
+    </div>
+
+    <div class="bg-gray-800 rounded-lg shadow-lg p-8">
+      <h2 class="text-2xl font-bold mb-4">Recent Pastes</h2>
+      {#if data.pastes && data.pastes.length > 0}
+        <ul class="space-y-4">
+          {#each data.pastes as paste}
+            <li class="bg-gray-700 rounded-lg p-4">
+              <h3 class="text-xl font-bold mb-2">{paste.title}</h3>
+              <p class="mb-2">{paste.text}</p>
+              <p class="text-sm text-gray-400">
+                Expires in {formatExpirationTime(paste.paste_expiration)}
+              </p>
+              <a href={`/pastebin/${paste.id}`} class="text-indigo-400"
+                >View Paste</a
+              >
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p>No pastes found.</p>
+      {/if}
+    </div>
+  </div>
+</div>
