@@ -1,26 +1,26 @@
 {
-    "name": "",
+    "name": "WhiteBoard",
     "description": "",
     "contributors": [
+        {
+            "name": "Aswani Bolisetti",
+            "githubId": "AswaniBolisetti"
+        },
+        {
+            "name": "Siddharth Samant",
+            "githubId": "Siddharth Samant"
+        },
+        {
+            "name": "Anurag Nalkar",
+            "githubId": "Garuna414"
+        },
         {
             "name": "Pranav Mahajan",
             "githubId": "PranavGitHubAcc"
         },
         {
-            "name": "",
-            "githubId": ""
-        },
-        {
-            "name": "",
-            "githubId": ""
-        },
-        {
-            "name": "",
-            "githubId": ""
-        },
-        {
-            "name": "",
-            "githubId": ""
+            "name": "Pranavi Singh",
+            "githubId": "pranavisingh8"
         }
     ]
 }

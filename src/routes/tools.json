@@ -1,15 +1,4 @@
 {
-    "Gradient-generator": {
-        "name": "Gradient Generator",
-        "link": "/Gradient-generator",
-        "description": "The Gradient Generator is a tool for Developers which allows you to create Gradient between 2 Colors and Copy its CSS Output.",
-        "contributors": [
-            {
-                "name": "Yash Mankar",
-                "githubId": "AraeneaCLI"
-            }
-        ]
-    },
     "add-prefix-suffix": {
         "name": "Add Prefix and Suffix",
         "link": "/add-prefix-suffix",
@@ -233,6 +222,17 @@
             {
                 "name": "Mohammad Adil",
                 "githubId": "devilzs1"
+            }
+        ]
+    },
+    "Gradient-generator": {
+        "name": "Gradient Generator",
+        "link": "/Gradient-generator",
+        "description": "The Gradient Generator is a tool for Developers which allows you to create Gradient between 2 Colors and Copy its CSS Output.",
+        "contributors": [
+            {
+                "name": "Yash Mankar",
+                "githubId": "AraeneaCLI"
             }
         ]
     },
@@ -530,24 +530,24 @@
         "description": "",
         "contributors": [
             {
+                "name": "Aswani Bolisetti",
+                "githubId": "AswaniBolisetti"
+            },
+            {
+                "name": "Siddharth Samant",
+                "githubId": "Siddharth Samant"
+            },
+            {
+                "name": "Anurag Nalkar",
+                "githubId": "Garuna414"
+            },
+            {
                 "name": "Pranav Mahajan",
                 "githubId": "PranavGitHubAcc"
             },
             {
-                "name": "",
-                "githubId": ""
-            },
-            {
-                "name": "",
-                "githubId": ""
-            },
-            {
-                "name": "",
-                "githubId": ""
-            },
-            {
-                "name": "",
-                "githubId": ""
+                "name": "Pranavi Singh",
+                "githubId": "pranavisingh8"
             }
         ]
     }
