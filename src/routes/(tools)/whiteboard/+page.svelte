@@ -1,257 +1,353 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Whiteboard</title>
-  <style>
-    .inner-card {
-      height: 600px;
-      position: relative;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Whiteboard</title>
+    <style>
+        .inner-card {
+            height: 600px;
+            position: relative;
+        }
 
-    #whiteboard {
-      width: 100%;
-      height: 100%;
-      border: 1px solid #ccc;
-    }
+        #whiteboard {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ccc;
+        }
 
-    .nav-bar {
-      width: 100%;
-      position: relative;
-    }
+        .nav-bar {
+            width: 100%;
+            position: relative;
+        }
 
-    .tool-btn {
-      border: none;
-      padding: 8px 16px;
-      margin: 4px;
-      cursor: pointer;
-      border-radius: 4px;
-      position: relative;
-    }
+        .tool-btn {
+            border: none;
+            padding: 8px 16px;
+            margin: 4px;
+            cursor: pointer;
+            border-radius: 4px;
+            position: relative;
+        }
 
-    .tool-btn:hover {
-      background-color: #e0e0e0;
-    }
+        .tool-btn img {
+            width: 24px;
+            height: 24px;
+        }
 
-    .dropdown {
-      position: absolute;
-      top: calc(100% + 8px); 
-      left: 0;
-      z-index: 1000;
-      display: none;
-      background-color: #fff;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-      border-radius: 4px;
-      width: max-content; 
-    }
+        .tool-btn:hover {
+            background-color: #e0e0e0;
+        }
 
-    .dropdown.active {
-      display: block;
-    }
+        .dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            z-index: 1000;
+            display: none;
+            background-color: #fff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+            width: max-content;
+        }
 
-    .dropdown-arrow {
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-style: solid;
-      border-width: 6px 6px 0 6px;
-      border-color: #f0f0f0 transparent transparent transparent;
-    }
+        .dropdown.active {
+            display: block;
+        }
 
-    .dropdown-item {
-      padding: 8px 16px;
-      cursor: pointer;
-    }
+        .dropdown-arrow {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 6px 6px 0 6px;
+            border-color: #424242 transparent transparent transparent;
+        }
 
-    .dropdown-item:hover {
-      background-color: #f0f0f0;
-    }
-  </style>
+        .dropdown-item {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .color-palette {
+            display: flex;
+            padding: 8px;
+        }
+
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            margin: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <div class="card items-center mx-auto max-w-screen-xl lg:grid overflow-hidden rounded-lg">
-    <!-- Navigation bar -->
-    <div class="nav-bar bg-gray-200 p-2 flex items-center">
-      <button id="pencil" class="tool-btn"><img src="/src/images/pencil.png" alt=""/></button>
-      <div class="relative">
-        <button id="eraser" class="tool-btn"><img src="/src/images/eraser.png" alt=""/><span class="dropdown-arrow"></span></button>
-        <div id="eraser-width-dropdown" class="dropdown">
-          <div class="dropdown-item" data-width="5">5px</div>
-          <div class="dropdown-item" data-width="10">10px</div>
-          <div class="dropdown-item" data-width="15">15px</div>
-          <div class="dropdown-item" data-width="20">20px</div>
+    <div class="card items-center mx-auto max-w-screen-xl lg:grid overflow-hidden rounded-lg">
+        <!-- Navigation bar -->
+        <div class="nav-bar bg-gray-200 p-2 flex items-center">
+            <button id="pencil" class="tool-btn"><img src="/src/images/pencil.png" alt="" /></button>
+            <div class="relative">
+                <button id="eraser" class="tool-btn"><img src="/src/images/eraser.png" alt="" /><span class="dropdown-arrow"></span></button>
+                <div id="eraser-width-dropdown" class="dropdown">
+                    <div class="range-slider">
+                        <input class="input-range" orient="vertical" id="sliderSelection" type="range" step="2" value="5" min="2" max="20" />
+                        <span class="range-value"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative">
+                <button id="fill" class="tool-btn"><img src="/src/images/paint-bucket.png" alt="" /><span class="dropdown-arrow"></span></button>
+                <div id="color-palette-dropdown" class="dropdown">
+                    <div class="color-palette">
+                        <div class="color-swatch" data-color="#FF0000" style="background-color: #FF0000;"></div>
+                        <div class="color-swatch" data-color="#00FF00" style="background-color: #00FF00;"></div>
+                        <div class="color-swatch" data-color="#0000FF" style="background-color: #0000FF;"></div>
+                        <div class="color-swatch" data-color="#FFFF00" style="background-color: #FFFF00;"></div>
+                        <div class="color-swatch" data-color="#FF00FF" style="background-color: #FF00FF;"></div>
+                        <div class="color-swatch" data-color="#00FFFF" style="background-color: #00FFFF;"></div>
+                        <div class="color-swatch" data-color="#000000" style="background-color: #000000;"></div>
+                        <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative">
+                <button id="shapes" class="tool-btn"><img src="/src/images/shapes.png" alt="" /><span class="dropdown-arrow"></span></button>
+                <div id="shapes-dropdown" class="dropdown">
+                    <div class="dropdown-item" data-shape="circle">Circle</div>
+                    <div class="dropdown-item" data-shape="square">Square</div>
+                    <div class="dropdown-item" data-shape="line">Line</div>
+                </div>
+            </div>
+            <button id="add-image" class="tool-btn"><img src="/src/images/image.png" alt="" /></button>
+            <input type="file" id="image-input" style="display: none;" accept="image/*" />
+            <button id="undo" class="tool-btn"><img src="/src/images/undo.png" alt="" /></button>
+            <button id="redo" class="tool-btn"><img src="/src/images/redo.png" alt="" /></button>
+            <button id="clear" class="tool-btn"><img src="/src/images/clear.png" alt="Clear Canvas" /></button>
         </div>
-      </div>
-      <button id="fill" class="tool-btn"><img src="/src/images/paint-bucket.png" alt=""/></button>
-      <button id="shapes" class="tool-btn"><img src="/src/images/shapes.png" alt=""/></button>
-      <button id="undo" class="tool-btn"><img src="/src/images/undo.png" alt=""/></button>
-      <button id="redo" class="tool-btn"><img src="/src/images/redo.png" alt=""/></button>
+
+        <!-- Whiteboard area -->
+        <div class="inner-card w-full bg-white">
+            <canvas id="whiteboard"></canvas>
+        </div>
     </div>
-    
-    <!-- Whiteboard area -->
-    <div class="inner-card w-full bg-white">
-      <canvas id="whiteboard"></canvas>
-    </div>
-  </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const canvas = document.getElementById('whiteboard');
-      const ctx = canvas.getContext('2d');
-      let isDrawing = false;
-      let lastX = 0;
-      let lastY = 0;
-      let eraserSize = 10;
-      let drawingHistory = [];
-      let historyIndex = -1;
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const canvas = document.getElementById("whiteboard");
+            const ctx = canvas.getContext("2d");
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            let tool = "pencil";
+            let eraserSize = 10;
+            let drawingHistory = [];
+            let historyIndex = -1;
+            let fillColor = [0, 0, 0, 255]; // Default fill color is black
+            let shape = null;
+            let startX, startY;
 
-      function initializeCanvas() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
+            function resizeCanvas() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                if (drawingHistory.length > 0) {
+                    ctx.putImageData(drawingHistory[historyIndex], 0, 0);
+                }
+            }
 
-      function startDrawing(e) {
-        isDrawing = true;
-        [lastX, lastY] = [e.offsetX, e.offsetY];
-      }
+            // Call resizeCanvas initially and on window resize
+            resizeCanvas();
+            window.addEventListener("resize", resizeCanvas);
 
-      function draw(e) {
-        if (!isDrawing) return;
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
+            function startDrawing(e) {
+                isDrawing = true;
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+                if (tool === "shapes" && shape) {
+                    startX = e.offsetX;
+                    startY = e.offsetY;
+                }
+            }
 
-        if (pencilActive) {
-          ctx.strokeStyle = '#000'; 
-        } else if (eraserActive) {
-          ctx.strokeStyle = '#fff'; 
-          ctx.lineWidth = eraserSize; 
-        }
+            function draw(e) {
+                if (!isDrawing) return;
+                ctx.lineWidth = tool === "eraser" ? eraserSize : 2;
+                ctx.lineCap = "round";
+                ctx.strokeStyle = tool === "eraser" ? "#fff" : "#000";
 
-        ctx.beginPath();
-        ctx.moveTo(lastX, lastY);
-        ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.stroke();
-        [lastX, lastY] = [e.offsetX, e.offsetY];
+                if (tool === "shapes" && shape) {
+                    // Redraw the last state of the canvas to avoid drawing artifacts
+                    if (drawingHistory.length > 0) {
+                        ctx.putImageData(drawingHistory[historyIndex], 0, 0);
+                    }
+                    switch (shape) {
+                        case "circle":
+                            drawCircle(startX, startY, e.offsetX, e.offsetY);
+                            break;
+                        case "square":
+                            drawSquare(startX, startY, e.offsetX, e.offsetY);
+                            break;
+                        case "line":
+                            drawLine(startX, startY, e.offsetX, e.offsetY);
+                            break;
+                    }
+                } else {
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(e.offsetX, e.offsetY);
+                    ctx.stroke();
+                    [lastX, lastY] = [e.offsetX, e.offsetY];
+                }
+            }
 
-        if (!eraserActive) {
-          saveDrawingAction();
-        }
-      }
+            function stopDrawing() {
+                if (!isDrawing) return;
+                isDrawing = false;
+                if (tool !== "eraser" && tool !== "shapes") {
+                    saveDrawingAction();
+                } else if (tool === "shapes" && shape) {
+                    saveDrawingAction();
+                }
+            }
 
-      function stopDrawing() {
-        isDrawing = false;
-        if (!eraserActive && historyIndex < drawingHistory.length - 1) {
-          drawingHistory = drawingHistory.slice(0, historyIndex + 1);
-        }
-      }
+            function saveDrawingAction() {
+                if (historyIndex < drawingHistory.length - 1) {
+                    drawingHistory = drawingHistory.slice(0, historyIndex + 1);
+                }
+                drawingHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+                historyIndex++;
+            }
 
-      function saveDrawingAction() {
-        historyIndex++;
-        if (historyIndex < drawingHistory.length) {
-          drawingHistory.splice(historyIndex);
-        }
-        drawingHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      }
+            canvas.addEventListener("mousedown", startDrawing);
+            canvas.addEventListener("mousemove", draw);
+            canvas.addEventListener("mouseup", stopDrawing);
+            canvas.addEventListener("mouseout", stopDrawing);
 
-      function undoDrawing() {
-        if (historyIndex > 0) {
-          historyIndex--;
-          ctx.putImageData(drawingHistory[historyIndex], 0, 0);
-        }
-      }
+            document.getElementById("pencil").addEventListener("click", () => tool = "pencil");
+            document.getElementById("eraser").addEventListener("click", () => {
+                tool = "eraser";
+                toggleDropdown("eraser-width-dropdown");
+            });
 
-      function redoDrawing() {
-        if (historyIndex < drawingHistory.length - 1) {
-          historyIndex++;
-          ctx.putImageData(drawingHistory[historyIndex], 0, 0);
-        }
-      }
+            document.getElementById("sliderSelection").addEventListener("input", function () {
+                eraserSize = parseInt(this.value);
+                this.nextElementSibling.textContent = eraserSize;
+            });
 
-      canvas.addEventListener('mousedown', startDrawing);
-      canvas.addEventListener('mousemove', draw);
-      canvas.addEventListener('mouseup', stopDrawing);
-      canvas.addEventListener('mouseout', stopDrawing);
+            document.getElementById("fill").addEventListener("click", () => {
+                tool = "fill";
+                toggleDropdown("color-palette-dropdown");
+            });
 
-      let pencilActive = true;
-      let eraserActive = false;
+            document.getElementById("shapes").addEventListener("click", () => {
+                tool = "shapes";
+                toggleDropdown("shapes-dropdown");
+            });
 
-      const pencilBtn = document.getElementById('pencil');
-      pencilBtn.addEventListener('click', function() {
-        pencilActive = true;
-        eraserActive = false;
-        canvas.style.cursor = 'crosshair';
-        hideDropdown();
-      });
+            document.getElementById("add-image").addEventListener("click", () => {
+                document.getElementById("image-input").click();
+            });
 
-      const eraserBtn = document.getElementById('eraser');
-      const eraserDropdown = document.getElementById('eraser-width-dropdown');
-      const dropdownArrow = document.querySelector('.dropdown-arrow');
-      eraserBtn.addEventListener('click', function() {
-        eraserActive = !eraserActive; 
-        pencilActive = !eraserActive; 
-        canvas.style.cursor = eraserActive ? 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\' fill=\'%23ffffff\'%3E%3Cpath fill-rule=\'evenodd\' d=\'M5 13V6h10v7H5zm11 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-5h12zM7 8v2h6V8H7z\' clip-rule=\'evenodd\'/%3E%3C/svg%3E") 14 14, auto' : 'crosshair';
-        eraserDropdown.classList.toggle('active');
-        dropdownArrow.classList.toggle('active'); 
-      });
+            document.getElementById("image-input").addEventListener("change", function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const img = new Image();
+                        img.onload = function () {
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            saveDrawingAction();
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
 
-      function hideDropdown() {
-        eraserDropdown.classList.remove('active');
-        dropdownArrow.classList.remove('active'); 
-      }
+            document.getElementById("undo").addEventListener("click", undo);
+            document.getElementById("redo").addEventListener("click", redo);
+            document.getElementById("clear").addEventListener("click", clearCanvas);
 
-      const dropdownItems = document.querySelectorAll('.dropdown-item');
-      dropdownItems.forEach(item => {
-        item.addEventListener('click', function() {
-          eraserSize = parseInt(this.getAttribute('data-width'));
-          hideDropdown();
+            document.querySelectorAll(".color-swatch").forEach(swatch => {
+                swatch.addEventListener("click", function () {
+                    fillColor = hexToRgba(this.dataset.color);
+                });
+            });
+
+            document.querySelectorAll(".dropdown-item").forEach(item => {
+                item.addEventListener("click", function () {
+                    shape = this.dataset.shape;
+                    toggleDropdown("shapes-dropdown");
+                });
+            });
+
+            function toggleDropdown(dropdownId) {
+                const dropdown = document.getElementById(dropdownId);
+                dropdown.classList.toggle("active");
+            }
+
+            function hexToRgba(hex) {
+                let c;
+                if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+                    c = hex.substring(1).split("");
+                    if (c.length === 3) {
+                        c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+                    }
+                    c = "0x" + c.join("");
+                    return [(c >> 16) & 255, (c >> 8) & 255, c & 255, 255];
+                }
+                throw new Error("Bad Hex");
+            }
+
+            function drawCircle(x1, y1, x2, y2) {
+                const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                ctx.beginPath();
+                ctx.arc(x1, y1, radius, 0, Math.PI * 2, false);
+                ctx.stroke();
+            }
+
+            function drawSquare(x1, y1, x2, y2) {
+                const side = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
+                ctx.beginPath();
+                ctx.rect(x1, y1, side, side);
+                ctx.stroke();
+            }
+
+            function drawLine(x1, y1, x2, y2) {
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+
+            function undo() {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    ctx.putImageData(drawingHistory[historyIndex], 0, 0);
+                }
+            }
+
+            function redo() {
+                if (historyIndex < drawingHistory.length - 1) {
+                    historyIndex++;
+                    ctx.putImageData(drawingHistory[historyIndex], 0, 0);
+                }
+            }
+
+            function clearCanvas() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                saveDrawingAction();
+            }
         });
-      });
-
-      const fillBtn = document.getElementById('fill');
-      fillBtn.addEventListener('click', function() {
-        hideDropdown();
-      });
-
-      const shapesBtn = document.getElementById('shapes');
-      shapesBtn.addEventListener('click', function() {
-        hideDropdown();
-      });
-
-      const undoBtn = document.getElementById('undo');
-      undoBtn.addEventListener('click', function() {
-        undoDrawing();
-        hideDropdown();
-      });
-
-      const redoBtn = document.getElementById('redo');
-      redoBtn.addEventListener('click', function() {
-        redoDrawing();
-        hideDropdown();
-      });
-
-      window.addEventListener('resize', initializeCanvas);
-      initializeCanvas();
-
-      // Ensure canvas is initialized properly when navigating to the whiteboard
-      function ensureCanvasInitialization() {
-        setTimeout(initializeCanvas, 100);
-      }
-
-      ensureCanvasInitialization();
-
-      window.addEventListener('load', ensureCanvasInitialization);
-      document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'visible') {
-          ensureCanvasInitialization();
-        }
-      });
-    });
-  </script>
+    </script>
 </body>
 </html>

@@ -1,23 +1,26 @@
 {
-    "name": "Whiteboard",
-    "description":"It is an online Whiteboard where you can covert your own thoughts to picture",
-    "contributors": [{
-        "name": "Aswani Bolisetti",
-        "githubId": "AswaniBolisetti"
-    }, {
-        "name": "Siddharth Samant",
-        "githubId": "Siddharth-smnt"
-    },
-    {
-        "name": "Pranavi Singh",
-        "githubId": "pranavisingh8"
-    },
-    {
-        "name": "Anurag Nalkar",
-        "githubId": "Garuna414"
-    },
-    {
-        "name": "Pranav Suyog Mahajan",
-        "githubId": "PranavGitHubAcc"
-    }]
+    "name": "WhiteBoard",
+    "description": "",
+    "contributors": [
+        {
+            "name": "Aswani Bolisetti",
+            "githubId": "AswaniBolisetti"
+        },
+        {
+            "name": "Siddharth Samant",
+            "githubId": "Siddharth-smnt"
+        },
+        {
+            "name": "Anurag Nalkar",
+            "githubId": "Garuna414"
+        },
+        {
+            "name": "Pranav Mahajan",
+            "githubId": "PranavGitHubAcc"
+        },
+        {
+            "name": "Pranavi Singh",
+            "githubId": "pranavisingh8"
+        }
+    ]
 }
