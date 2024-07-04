@@ -19,6 +19,56 @@
   let penWidth = 2;
   let eraserWidth = 10;
 
+  const handleDownload = () => {
+    // A4 dimensions (approx. 595 x 842 pixels)
+    const a4Width = 595;
+    const a4Height = 842;
+
+    // Create a canvas element
+    const canvas = document.createElement('canvas');
+    canvas.width = a4Width;
+    canvas.height = a4Height;
+
+    const ctx = canvas.getContext('2d');
+
+    // Set up styles
+    ctx.fillStyle = '#ffffff'; 
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#000000'; // box color
+    ctx.font = '14px Arial'; 
+    ctx.textAlign = 'center';
+
+    const headingOffsetY = 5;
+    const boxWidth = 60;
+    const boxHeight = 80;
+    // const margin = 20;
+    const marginY = 20;
+    const marginX = 10;
+    const startX = 20;
+    const startY = 20;
+
+    letters.forEach((letter, index) => {
+      const x = startX + (index % 8) * (boxWidth + marginX);
+      const y = startY + Math.floor(index / 8) * (boxHeight + marginY);
+
+      // heading
+      ctx.fillText(letter, x + boxWidth / 2, y - headingOffsetY);
+
+      // empty box
+      ctx.strokeRect(x, y, boxWidth, boxHeight);
+    });
+
+    // canvas to PNG 
+    const dataUrl = canvas.toDataURL('image/png');
+
+    // + link element and trigger download
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = 'handwriting_template.png';
+    link.click();
+  };
+
   onMount(() => {
     drawingCtx = drawingCanvas.getContext("2d");
     startDrawing();
@@ -207,16 +257,39 @@
 
   <div class="px-4 py-10 h-full">
     <div class="p-2">
+      <div class="flex gap-2">
       <button
         on:click={() => (showTemplates = !showTemplates)}
         class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-8 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-2"
       >
-        Templates
+        Generate Template
       </button>
-
+      <!-- download template button -->
+      <button on:click={handleDownload} class="bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-8 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height="20">
+          <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+          <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/>
+        </svg>
+      </button>
+    </div>
       <div
         class="text-gray-900 text-sm px-4 py-2 dark:text-white flex flex-col w-auto"
       >
+        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+        <div
+          class="flex justify-between cursor-pointer mb-2"
+          on:click={() => (showLanguagesOptions = !showLanguagesOptions)}
+          tabindex="0"
+          on:keydown={(e) =>
+            e.key === "Enter" && (showLanguagesOptions = !showLanguagesOptions)}
+        >
+          Languages
+          {#if showLanguagesOptions}
+            <span>-</span>
+          {:else}
+            <span>+</span>
+          {/if}
+        </div>
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <div
           class="flex justify-between cursor-pointer mb-2"
@@ -324,22 +397,24 @@
             </li>
           </ul>
         {/if}
-        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-        <div
-          class="flex justify-between cursor-pointer mb-2"
-          on:click={() => (showLanguagesOptions = !showLanguagesOptions)}
-          tabindex="0"
-          on:keydown={(e) =>
-            e.key === "Enter" && (showLanguagesOptions = !showLanguagesOptions)}
-        >
-          Languages
-          {#if showLanguagesOptions}
-            <span>-</span>
-          {:else}
-            <span>+</span>
-          {/if}
-        </div>
       </div>
+    </div>
+    <div class="m-2">
+      {#if showTemplates}
+        <ul class="flex flex-wrap justify-center items-center gap-2">
+          {#each letters as letter}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <li
+              class="flex justify-center items-center p-2 bg-gray-200 rounded shadow w-10 h-10"
+              on:click={() => updatePreview(letter)}
+            >
+              {letter}
+            </li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
+    <div class="p-2">
       <button
         on:click={() => (showMyFonts = !showMyFonts)}
         class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-8 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -361,22 +436,6 @@
         </div>
       {/if}
     </div>
-
-    <div class="m-2">
-      {#if showTemplates}
-        <ul class="flex flex-wrap justify-center items-center gap-2">
-          {#each letters as letter}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <li
-              class="flex justify-center items-center p-2 bg-gray-200 rounded shadow w-10 h-10"
-              on:click={() => updatePreview(letter)}
-            >
-              {letter}
-            </li>
-          {/each}
-        </ul>
-      {/if}
-    </div>
   </div>
 
   <!-- Canvas div starts here -->
@@ -392,7 +451,7 @@
       </div>
 
       <button
-        class="cursor-pointer mx-6 text-sm p-4 rounded-full border-2 border-blue-500 hover:border-green-600 "
+        class="cursor-pointer mx-6 text-sm p-4 rounded-full border-2 border-blue-500 hover:border-green-600"
         on:click={toggleEraser}
       >
         <svg
@@ -411,7 +470,9 @@
       </button>
 
       {#if !isEraser}
-        <div class="flex items-center justify-center text-black dark:text-white">
+        <div
+          class="flex items-center justify-center text-black dark:text-white"
+        >
           <label for="penWidth" class="mr-2">Stroke:</label>
           <input
             type="range"
@@ -424,9 +485,11 @@
           <span class="ml-2">{penWidth}</span>
         </div>
       {/if}
-      
+
       {#if isEraser}
-        <div class="flex items-center justify-center text-black dark:text-white">
+        <div
+          class="flex items-center justify-center text-black dark:text-white"
+        >
           <label for="eraserWidth" class="mr-2">Area:</label>
           <input
             type="range"
