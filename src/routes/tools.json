@@ -525,29 +525,29 @@
         ]
     },
     "whiteboard": {
-        "name": "Whiteboard",
+        "name": "WhiteBoard",
         "link": "/whiteboard",
-        "description": "It is an online Whiteboard where you can covert your own thoughts to picture",
+        "description": "It is an Online WhiteBoard where you can convert your thoughts to picture",
         "contributors": [
             {
                 "name": "Aswani Bolisetti",
                 "githubId": "AswaniBolisetti"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Siddharth Samant",
+                "githubId": "Siddharth-smnt"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Anurag Nalkar",
+                "githubId": "Garuna414"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Pranav Mahajan",
+                "githubId": "PranavGitHubAcc"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Pranavi Singh",
+                "githubId": "pranavisingh8"
             }
         ]
     }
