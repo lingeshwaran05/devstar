@@ -134,6 +134,7 @@
             <button id="undo" class="tool-btn"><img src="/src/images/undo.png" alt="" /></button>
             <button id="redo" class="tool-btn"><img src="/src/images/redo.png" alt="" /></button>
             <button id="clear" class="tool-btn"><img src="/src/images/clear.png" alt="Clear Canvas" /></button>
+            <button id="download" class="tool-btn"><img src="/src/images/downloads.png" alt="Download" /></button>
         </div>
 
         <!-- Whiteboard area -->
@@ -276,6 +277,32 @@
             document.getElementById("undo").addEventListener("click", undo);
             document.getElementById("redo").addEventListener("click", redo);
             document.getElementById("clear").addEventListener("click", clearCanvas);
+            document.getElementById("download").addEventListener("click", () => {
+                // Save the current state of the canvas
+                saveDrawingAction();
+
+                // Temporarily draw a white background
+                const tempCanvas = document.createElement("canvas");
+                const tempCtx = tempCanvas.getContext("2d");
+
+                // Set the size of the temporary canvas to match the whiteboard
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+
+                // Fill the temporary canvas with white color
+                tempCtx.fillStyle = "#FFFFFF";
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                // Draw the current content of the whiteboard on the temporary canvas
+                tempCtx.drawImage(canvas, 0, 0);
+
+                // Create a download link for the canvas data
+                const dataURL = tempCanvas.toDataURL("image/png");
+                const link = document.createElement("a");
+                link.href = dataURL;
+                link.download = "whiteboard-drawing.png";
+                link.click();
+            });
 
             document.querySelectorAll(".color-swatch").forEach(swatch => {
                 swatch.addEventListener("click", function () {
