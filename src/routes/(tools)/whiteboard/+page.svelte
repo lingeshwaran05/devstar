@@ -88,6 +88,15 @@
             border-radius: 4px;
             cursor: pointer;
         }
+        .tool-btn.active {
+            background-color: #c0c0c0; /* Example color for active state */
+            border: 1px solid #000;   /* Example border for active state */
+        }
+        .color-swatch.active {
+           border: 2px solid #000; /* Example border for active state */
+        }
+
+
     </style>
 </head>
 <body>
@@ -126,6 +135,8 @@
                 <div id="shapes-dropdown" class="dropdown">
                     <div class="dropdown-item" data-shape="circle">Circle</div>
                     <div class="dropdown-item" data-shape="square">Square</div>
+                    <div class="dropdown-item" data-shape="triangle">Triangle</div>
+                    <div class="dropdown-item" data-shape="rectangle">Rectangle</div>
                     <div class="dropdown-item" data-shape="line">Line</div>
                 </div>
             </div>
@@ -176,6 +187,9 @@
                 if (tool === "shapes" && shape) {
                     startX = e.offsetX;
                     startY = e.offsetY;
+                } else if (tool === "fill") {
+                    floodFill(e.offsetX, e.offsetY, fillColor);
+                    saveDrawingAction();
                 }
             }
 
@@ -199,6 +213,12 @@
                             break;
                         case "line":
                             drawLine(startX, startY, e.offsetX, e.offsetY);
+                            break;
+                        case "rectangle":
+                            drawRectangle(startX, startY, e.offsetX, e.offsetY);
+                            break;
+                        case "triangle":
+                            drawTriangle(startX, startY, e.offsetX, e.offsetY);
                             break;
                     }
                 } else {
@@ -233,26 +253,54 @@
             canvas.addEventListener("mouseup", stopDrawing);
             canvas.addEventListener("mouseout", stopDrawing);
 
-            document.getElementById("pencil").addEventListener("click", () => tool = "pencil");
-            document.getElementById("eraser").addEventListener("click", () => {
+            function clearActiveTool() {
+                document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.classList.remove('active');
+              });
+            }
+
+            document.getElementById("pencil").addEventListener("click", () => {
+                clearActiveTool();
+                tool = "pencil";
+                document.getElementById("pencil").classList.add('active');
+              });
+
+              document.getElementById("eraser").addEventListener("click", () => {
+                clearActiveTool();
                 tool = "eraser";
+                document.getElementById("eraser").classList.add('active');
                 toggleDropdown("eraser-width-dropdown");
-            });
+              });
 
             document.getElementById("sliderSelection").addEventListener("input", function () {
                 eraserSize = parseInt(this.value);
                 this.nextElementSibling.textContent = eraserSize;
             });
 
+            
             document.getElementById("fill").addEventListener("click", () => {
+                clearActiveTool();
                 tool = "fill";
+                document.getElementById("fill").classList.add('active');
                 toggleDropdown("color-palette-dropdown");
             });
+            
+            document.querySelectorAll(".color-swatch").forEach(swatch => {
+              swatch.addEventListener("click", function () {
+              clearActiveColorSwatch();
+              fillColor = hexToRgba(this.dataset.color);
+              this.classList.add('active');
+              }); 
+            });
 
+            
             document.getElementById("shapes").addEventListener("click", () => {
+                clearActiveTool();
                 tool = "shapes";
+                document.getElementById("shapes").classList.add('active');
                 toggleDropdown("shapes-dropdown");
             });
+
 
             document.getElementById("add-image").addEventListener("click", () => {
                 document.getElementById("image-input").click();
@@ -349,12 +397,35 @@
                 ctx.stroke();
             }
 
+            function drawRectangle(x1, y1, x2, y2) {
+                const width = x2 - x1;
+                const height = y2 - y1;
+                ctx.beginPath();
+                ctx.rect(x1, y1, width, height);
+                ctx.stroke();
+            }
+
+            function drawTriangle(x1, y1, x2, y2) {
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.lineTo(x1, y2);
+                ctx.closePath();
+                ctx.stroke();
+            }
             function drawLine(x1, y1, x2, y2) {
                 ctx.beginPath();
                 ctx.moveTo(x1, y1);
                 ctx.lineTo(x2, y2);
                 ctx.stroke();
             }
+            function clearActiveColorSwatch() {
+                document.querySelectorAll('.color-swatch').forEach(swatch => {
+                swatch.classList.remove('active');
+              });
+            }
+
+
 
             function undo() {
                 if (historyIndex > 0) {
@@ -373,6 +444,49 @@
             function clearCanvas() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 saveDrawingAction();
+            }
+
+            function floodFill(x, y, fillColor) {
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                const targetColor = getColorAtPixel(imageData, x, y);
+                if (!colorsMatch(targetColor, fillColor)) {
+                    const stack = [[x, y]];
+                    while (stack.length > 0) {
+                        const [currentX, currentY] = stack.pop();
+                        const currentColor = getColorAtPixel(imageData, currentX, currentY);
+                        if (colorsMatch(currentColor, targetColor)) {
+                            setColorAtPixel(imageData, currentX, currentY, fillColor);
+                            stack.push([currentX + 1, currentY]);
+                            stack.push([currentX - 1, currentY]);
+                            stack.push([currentX, currentY + 1]);
+                            stack.push([currentX, currentY - 1]);
+                        }
+                    }
+                    ctx.putImageData(imageData, 0, 0);
+                }
+            }
+
+            function getColorAtPixel(imageData, x, y) {
+                const index = (y * imageData.width + x) * 4;
+                const data = imageData.data;
+                return [data[index], data[index + 1], data[index + 2], data[index + 3]];
+            }
+
+            function setColorAtPixel(imageData, x, y, color) {
+                const index = (y * imageData.width + x) * 4;
+                const data = imageData.data;
+                data[index] = color[0];
+                data[index + 1] = color[1];
+                data[index + 2] = color[2];
+                data[index + 3] = color[3];
+            }
+
+            function colorsMatch(color1, color2) {
+                return color1[0] === color2[0] &&
+                       color1[1] === color2[1] &&
+                       color1[2] === color2[2] &&
+                       color1[3] === color2[3];
             }
         });
     </script>
