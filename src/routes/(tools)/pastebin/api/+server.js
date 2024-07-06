@@ -15,7 +15,7 @@ const secretKey =
   );
 const iv = "7dbfb688da37f2ed35ee7f5f194a8ff8".slice(0, 16);
 
-//this set internal for messing up with this function
+//this set interval was messing up with this function
 // setInterval(deleteExpiredPastes, 60 * 1000); // Check for expired pastes every minute
 
 //this post function is not needed
