@@ -95,6 +95,20 @@
         .color-swatch.active {
            border: 2px solid #000; /* Example border for active state */
         }
+        .color-palette {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 150px; /* Adjust this width based on your design */
+}
+
+.color-swatch {
+    width: 24px;
+    height: 24px;
+    margin: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 
 
     </style>
@@ -118,26 +132,40 @@
                 <button id="fill" class="tool-btn"><img src="/src/images/paint-bucket.png" alt="" /><span class="dropdown-arrow"></span></button>
                 <div id="color-palette-dropdown" class="dropdown">
                     <div class="color-palette">
-                        <div class="color-swatch" data-color="#FF0000" style="background-color: #FF0000;"></div>
-                        <div class="color-swatch" data-color="#00FF00" style="background-color: #00FF00;"></div>
-                        <div class="color-swatch" data-color="#0000FF" style="background-color: #0000FF;"></div>
-                        <div class="color-swatch" data-color="#FFFF00" style="background-color: #FFFF00;"></div>
-                        <div class="color-swatch" data-color="#FF00FF" style="background-color: #FF00FF;"></div>
-                        <div class="color-swatch" data-color="#00FFFF" style="background-color: #00FFFF;"></div>
-                        <div class="color-swatch" data-color="#000000" style="background-color: #000000;"></div>
-                        <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF;"></div>
+                        <div class="color-swatch" data-color="#FF4500" style="background-color: #FF4500;"></div> <!-- Orange Red -->
+                        <div class="color-swatch" data-color="#32CD32" style="background-color: #32CD32;"></div> <!-- Lime Green -->
+                        <div class="color-swatch" data-color="#1E90FF" style="background-color: #1E90FF;"></div> <!-- Dodger Blue -->
+                        <div class="color-swatch" data-color="#FFD700" style="background-color: #FFD700;"></div> <!-- Gold -->
+                        <div class="color-swatch" data-color="#EE82EE" style="background-color: #EE82EE;"></div> <!-- Violet -->
+                        <div class="color-swatch" data-color="#8A2BE2" style="background-color: #8A2BE2;"></div> <!-- Blue Violet -->
+                        <div class="color-swatch" data-color="#A52A2A" style="background-color: #A52A2A;"></div> <!-- Brown -->
+                        <div class="color-swatch" data-color="#5F9EA0" style="background-color: #5F9EA0;"></div> <!-- Cadet Blue -->
+                        <div class="color-swatch" data-color="#7FFF00" style="background-color: #7FFF00;"></div> <!-- Chartreuse -->
+                        <div class="color-swatch" data-color="#D2691E" style="background-color: #D2691E;"></div> <!-- Chocolate -->
+                        <div class="color-swatch" data-color="#FF7F50" style="background-color: #FF7F50;"></div> <!-- Coral -->
+                        <div class="color-swatch" data-color="#6495ED" style="background-color: #6495ED;"></div> <!-- Cornflower Blue -->
+                        <div class="color-swatch" data-color="#DC143C" style="background-color: #DC143C;"></div> <!-- Crimson -->
+                        <div class="color-swatch" data-color="#00FA9A" style="background-color: #00FA9A;"></div> <!-- Medium Spring Green -->
+                        <div class="color-swatch" data-color="#BA55D3" style="background-color: #BA55D3;"></div> <!-- Medium Orchid -->
+                        <div class="color-swatch" data-color="#FFDAB9" style="background-color: #FFDAB9;"></div> <!-- Peach Puff -->
+                        <div class="color-swatch" data-color="#FF6347" style="background-color: #FF6347;"></div> <!-- Tomato -->
+                        <div class="color-swatch" data-color="#4682B4" style="background-color: #4682B4;"></div> <!-- Steel Blue -->
+                        <div class="color-swatch" data-color="#40E0D0" style="background-color: #40E0D0;"></div> <!-- Turquoise -->
+                        <div class="color-swatch" data-color="#DA70D6" style="background-color: #DA70D6;"></div> <!-- Orchid -->
                     </div>
+                    
+                    
                 </div>
             </div>
 
             <div class="relative">
                 <button id="shapes" class="tool-btn"><img src="/src/images/shapes.png" alt="" /><span class="dropdown-arrow"></span></button>
                 <div id="shapes-dropdown" class="dropdown">
-                    <div class="dropdown-item" data-shape="circle">Circle</div>
-                    <div class="dropdown-item" data-shape="square">Square</div>
-                    <div class="dropdown-item" data-shape="triangle">Triangle</div>
-                    <div class="dropdown-item" data-shape="rectangle">Rectangle</div>
-                    <div class="dropdown-item" data-shape="line">Line</div>
+                    <div class="dropdown-item" data-shape="circle"><img src="/src/images/circle2.png" alt=""></div>
+                    <div class="dropdown-item" data-shape="square"><img src="/src/images/square.png" alt=""></div>
+                    <div class="dropdown-item" data-shape="triangle"><img src="/src/images/triangle.png" alt=""></div>
+                    <div class="dropdown-item" data-shape="rectangle"><img src="/src/images/rectangle.png" alt=""></div>
+                    <div class="dropdown-item" data-shape="line"><img src="/src/images/line.png" alt=""></div>
                 </div>
             </div>
             <button id="add-image" class="tool-btn"><img src="/src/images/image.png" alt="" /></button>
