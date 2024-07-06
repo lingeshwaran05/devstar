@@ -86,6 +86,7 @@
       });
     });
     updateCanvas(char);
+    window.addEventListener("keydown", handleKeyPress);
   });
 
   // Generate alphabet and numbers in the keyboard and canvas heading letters
@@ -176,8 +177,6 @@
       previewText = previewText.slice(0, -1);
     }
   }
-
-  window.addEventListener("keydown", handleKeyPress);
 
   // for next button
   function nextLetter() {
