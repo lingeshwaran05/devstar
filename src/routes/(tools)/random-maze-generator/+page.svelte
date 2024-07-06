@@ -1,8 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
   
-	let inputWidth = 50;
-	let inputHeight = 50;
+	let inputWidth = 25;
+	let inputHeight = 25;
 	let pathWidth = 10;
 	let wallWidth = 2;
 	let outerWidth = 2;
@@ -10,12 +10,13 @@
 	let wallColor = '#000000';
 	let seed = 0;
 	let maze = [];
+	let difficulty = 'easy'; // Default difficulty
   
 	const seededRandom = (seed) => {
-	  const xmur3 = str => {
+	  const xmur3 = (str) => {
 		for (var i = 0, h = 1779033703 ^ str.length; i < str.length; i++)
-		  h = Math.imul(h ^ str.charCodeAt(i), 3432918353), h = h << 13 | h >>> 19;
-		return () => (h = Math.imul(h ^ h >>> 16, 2246822507), h = Math.imul(h ^ h >>> 13, 3266489909), (h ^= h >>> 16) >>> 0) / 4294967296;
+		  h = Math.imul(h ^ str.charCodeAt(i), 3432918353), (h = (h << 13) | (h >>> 19));
+		return () => ((h = Math.imul(h ^ (h >>> 16), 2246822507)), (h = Math.imul(h ^ (h >>> 13), 3266489909)), ((h ^= h >>> 16) >>> 0) / 4294967296);
 	  };
 	  const random = xmur3(seed.toString());
 	  return () => random();
@@ -25,14 +26,29 @@
 	  const width = Math.floor(inputWidth / 2);
 	  const height = Math.floor(inputHeight / 2);
 	  const random = seededRandom(seed);
-	  maze = generateRecursiveBacktrackingMaze(width, height, random);
+	  maze = generateRecursiveBacktrackingMaze(width, height, random, difficulty);
 	};
   
-	const generateRecursiveBacktrackingMaze = (width, height, random) => {
+	const generateRecursiveBacktrackingMaze = (width, height, random, difficulty) => {
 	  const maze = Array.from({ length: height * 2 + 1 }, () => Array.from({ length: width * 2 + 1 }, () => 0));
   
 	  const stack = [[1, 1]];
 	  maze[1][1] = 1;
+  
+	  let branchProbability;
+	  switch (difficulty) {
+		case 'easy':
+		  branchProbability = 0.3;
+		  break;
+		case 'medium':
+		  branchProbability = 0.6;
+		  break;
+		case 'difficult':
+		  branchProbability = 0.9;
+		  break;
+		default:
+		  branchProbability = 0.6;
+	  }
   
 	  const directions = [
 		[0, 2],  // down
@@ -55,67 +71,76 @@
 		} else {
 		  stack.pop();
 		}
+  
+		// Add more branches based on difficulty
+		if (random() < branchProbability) {
+		  const [bx, by] = directions[Math.floor(random() * directions.length)];
+		  const [bx2, by2] = [x + bx, y + by];
+		  if (bx2 > 0 && by2 > 0 && bx2 < width * 2 && by2 < height * 2 && maze[by2][bx2] === 0) {
+			maze[(y + by2) / 2][(x + bx2) / 2] = 1;
+			maze[by2][bx2] = 1;
+			stack.push([bx2, by2]);
+		  }
+		}
 	  }
   
 	  return maze;
 	};
   
 	const downloadSVG = () => {
-  const svgWidth = inputWidth * (pathWidth + wallWidth) + outerWidth;
-  const svgHeight = inputHeight * (pathWidth + wallWidth) + outerWidth;
-
-  let svgContent = `
-    <svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100%" height="100%" fill="${wallColor}" />
-  `;
-
-  maze.forEach((row, y) => {
-    row.forEach((cell, x) => {
-      if (!cell) {
-        // Drawing horizontal walls
-        if (x < maze[0].length - 1 && maze[y][x + 1] === 0) {
-          svgContent += `
-            <line 
-              x1="${x * (pathWidth + wallWidth) + outerWidth / 2}" 
-              y1="${y * (pathWidth + wallWidth) + outerWidth / 2}" 
-              x2="${(x + 1) * (pathWidth + wallWidth) + outerWidth / 2}" 
-              y2="${y * (pathWidth + wallWidth) + outerWidth / 2}" 
-              stroke="${pathColor}" 
-              stroke-width="${wallWidth}" 
-            />
-          `;
-        }
-        // Drawing vertical walls
-        if (y < maze.length - 1 && maze[y + 1][x] === 0) {
-          svgContent += `
-            <line 
-              x1="${x * (pathWidth + wallWidth) + outerWidth / 2}" 
-              y1="${y * (pathWidth + wallWidth) + outerWidth / 2}" 
-              x2="${x * (pathWidth + wallWidth) + outerWidth / 2}" 
-              y2="${(y + 1) * (pathWidth + wallWidth) + outerWidth / 2}" 
-              stroke="${pathColor}" 
-              stroke-width="${wallWidth}" 
-            />
-          `;
-        }
-      }
-    });
-  });
-
-  svgContent += '</svg>';
-
-  const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'maze.svg';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-};
-
-	
+	  const svgWidth = inputWidth * (pathWidth + wallWidth) + outerWidth;
+	  const svgHeight = inputHeight * (pathWidth + wallWidth) + outerWidth;
+  
+	  let svgContent = `
+		<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">
+		  <rect width="100%" height="100%" fill="${wallColor}" />
+	  `;
+  
+	  maze.forEach((row, y) => {
+		row.forEach((cell, x) => {
+		  if (!cell) {
+			// Drawing horizontal walls
+			if (x < maze[0].length - 1 && maze[y][x + 1] === 0) {
+			  svgContent += `
+				<line 
+				  x1="${x * (pathWidth + wallWidth) + outerWidth / 2}" 
+				  y1="${y * (pathWidth + wallWidth) + outerWidth / 2}" 
+				  x2="${(x + 1) * (pathWidth + wallWidth) + outerWidth / 2}" 
+				  y2="${y * (pathWidth + wallWidth) + outerWidth / 2}" 
+				  stroke="${pathColor}" 
+				  stroke-width="${wallWidth}" 
+				/>
+			  `;
+			}
+			// Drawing vertical walls
+			if (y < maze.length - 1 && maze[y + 1][x] === 0) {
+			  svgContent += `
+				<line 
+				  x1="${x * (pathWidth + wallWidth) + outerWidth / 2}" 
+				  y1="${y * (pathWidth + wallWidth) + outerWidth / 2}" 
+				  x2="${x * (pathWidth + wallWidth) + outerWidth / 2}" 
+				  y2="${(y + 1) * (pathWidth + wallWidth) + outerWidth / 2}" 
+				  stroke="${pathColor}" 
+				  stroke-width="${wallWidth}" 
+				/>
+			  `;
+			}
+		  }
+		});
+	  });
+  
+	  svgContent += '</svg>';
+  
+	  const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+	  const url = URL.createObjectURL(blob);
+	  const a = document.createElement('a');
+	  a.href = url;
+	  a.download = 'maze.svg';
+	  document.body.appendChild(a);
+	  a.click();
+	  document.body.removeChild(a);
+	  URL.revokeObjectURL(url);
+	};
   
 	onMount(() => {
 	  generateMaze();
@@ -200,6 +225,14 @@
 	  <div class="control-group">
 		<label for="seed" class="text-white">Seed: </label>
 		<input id="seed" type="number" bind:value={seed} class="border p-1 m-1 text-white bg-gray-700">
+	  </div>
+	  <div class="control-group">
+		<label for="difficulty" class="text-white">Difficulty: </label>
+		<select id="difficulty" bind:value={difficulty} class="border p-1 m-1 text-white bg-gray-700">
+		  <option value="easy">Easy</option>
+		  <option value="medium">Medium</option>
+		  <option value="difficult">Difficult</option>
+		</select>
 	  </div>
 	  <div class="button-group">
 		<button on:click={generateMaze} class="bg-blue-500 text-white p-2 rounded m-1">Generate Maze</button>
