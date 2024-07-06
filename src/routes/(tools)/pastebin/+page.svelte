@@ -15,7 +15,6 @@
   export let data: { pastes: any[] };
   import Prism from "prismjs";
   import "prismjs/themes/prism-tomorrow.css"; // Import the theme you prefer
-  // Import languages you need
   import "prismjs/components/prism-javascript";
   import "prismjs/components/prism-css";
   import "prismjs/components/prism-markup";
@@ -28,16 +27,20 @@
     const secondsRemaining = Math.floor((expirationTimestamp - now) / 1000);
 
     if (secondsRemaining <= 0) {
-      return "Expired";
-    } else if (secondsRemaining < 60) {
-      return `${secondsRemaining} seconds`;
-    } else if (secondsRemaining < 3600) {
-      return `${Math.floor(secondsRemaining / 60)} minutes`;
-    } else if (secondsRemaining < 86400) {
-      return `${Math.floor(secondsRemaining / 3600)} hours`;
-    } else {
-      return `${Math.floor(secondsRemaining / 86400)} days`;
-    }
+    return "Expired";
+  } else if (secondsRemaining < 60) {
+    return `${secondsRemaining} seconds`;
+  } else if (secondsRemaining < 3600) {
+    return `${Math.floor(secondsRemaining / 60)} minutes`;
+  } else if (secondsRemaining < 86400) {
+    return `${Math.floor(secondsRemaining / 3600)} hours`;
+  } else if (secondsRemaining < 604800) { // less than a week
+    return `${Math.floor(secondsRemaining / 86400)} days`;
+  } else if (secondsRemaining < 2592000) { // less than a month
+    return `${Math.floor(secondsRemaining / 604800)} weeks`;
+  } else {
+    return `${Math.floor(secondsRemaining / 2592000)} months`;
+  }
   }
   function handleFileSelection(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -105,36 +108,19 @@
             required
           />
           <div class="text-black p-4">
-            <!-- <select bind:value={selectedLanguage} on:change={highlightSyntax}>
-			<option value="markup">HTML</option>
-			<option value="css">CSS</option>
-			<option value="javascript">JavaScript</option>
-		  </select> -->
+           
             <label
               for="language-select"
               class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 m"
               >Select Language</label
             >
             <Dropdown id="language-select" style="inline={true}">
-              <DropdownItem
-                on:click={() => {
-                  selectedLanguage = "javascript";
-                  highlightSyntax();
-                }}>JavaScript</DropdownItem
-              >
-              <DropdownItem
-                on:click={() => {
-                  selectedLanguage = "css";
-                  highlightSyntax();
-                }}>CSS</DropdownItem
-              >
-              <DropdownItem
-                on:click={() => {
-                  selectedLanguage = "markup";
-                  highlightSyntax();
-                }}>HTML</DropdownItem
-              >
+              <DropdownItem on:click={() => { selectedLanguage = "javascript"; highlightSyntax(); }}>JavaScript</DropdownItem>
+              <DropdownItem on:click={() => { selectedLanguage = "css"; highlightSyntax(); }}>CSS</DropdownItem>
+              <DropdownItem on:click={() => { selectedLanguage = "markup"; highlightSyntax(); }}>HTML</DropdownItem>
             </Dropdown>
+            <p class="mt-2 text-gray-400">Selected Language: {selectedLanguage}</p>
+            
           </div>
         </div>
 
@@ -176,12 +162,20 @@
             name="paste_expiration"
             class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            <option value="1 minute">1 Minute</option>
-            <option value="5 minutes">5 Minutes</option>
-            <option value="10 minutes">10 Minutes</option>
-            <option value="1 hour">1 Hour</option>
-            <option value="1 day">1 Day</option>
-            <option value="never">Never</option>
+          <option value="1 minute">1 Minute</option>
+          <option value="5 minutes">5 Minutes</option>
+          <option value="10 minutes">10 Minutes</option>
+          <option value="1 hour">1 Hour</option>
+          <option value="1 day">1 Day</option>
+          <option value="1 week">1 Week</option>
+          <option value="1 month">1 Month</option>
+          <option value="2 months">2 Months</option>
+          <option value="4 months">4 Months</option>
+          <option value="6 months">6 Months</option>
+          <option value="8 months">8 Months</option>
+          <option value="10 months">10 Months</option>
+          <option value="12 months">12 Months</option>
+          <option value="never">Never</option>
           </select>
         </div>
         <button

@@ -39,26 +39,36 @@ function parseExpirationTime(expirationString) {
   const [value, unit] = expirationString.split(" ");
   const numericValue = parseInt(value, 10);
 
-  switch (unit) {
-    case "minutes":
-    case "minute":
-      return numericValue * 60 * 1000;
-    case "hours":
-    case "hour":
-      return numericValue * 3600 * 1000;
-    case "days":
-    case "day":
-      return numericValue * 86400 * 1000;
-    case "weeks":
-    case "week":
-      return numericValue * 604800 * 1000;
-    case "months":
-    case "month":
-      return numericValue * 2592000 * 1000;
-    case "years":
-    case "year":
-      return numericValue * 31536000 * 1000;
-    default:
-      throw new Error("Invalid expiration time format");
+  if (expirationString === "never") {
+    return Infinity; // Handle the "never" option
+  }
+
+  function parseExpirationTime(expirationString) {
+    if (expirationString === "never") {
+      return Infinity; // Handle the "never" option
+    }
+  
+    const [value, unit] = expirationString.split(" ");
+    const numericValue = parseInt(value, 10);
+  
+    switch (unit) {
+      case "minute":
+      case "minutes":
+        return numericValue * 60 * 1000; // Convert to milliseconds
+      case "hour":
+      case "hours":
+        return numericValue * 3600 * 1000; // Convert to milliseconds
+      case "day":
+      case "days":
+        return numericValue * 86400 * 1000; // Convert to milliseconds
+      case "week":
+      case "weeks":
+        return numericValue * 7 * 86400 * 1000; // Convert to milliseconds
+      case "month":
+      case "months":
+        return numericValue * 30 * 86400 * 1000; // Approximate month to 30 days, convert to milliseconds
+      default:
+        throw new Error("Invalid expiration time format");
+    }
   }
 }
