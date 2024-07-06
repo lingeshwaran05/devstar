@@ -2,14 +2,13 @@
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
 
+  let letters = Object.keys(generateAlphabet()); // assuming generateAlphabet function returns an object with alphabet keys
   let showTemplates = true;
   let showMyFonts = false;
   let showBasicsOptions = true;
   let showLanguagesOptions = true;
-
-  const letters = generateAlphabet();
   let currentIndex = 0;
-  let char = letters[currentIndex];
+  let char = letters[currentIndex]
   let previewText = "";
   let drawingCanvas;
   let drawingCtx;
@@ -42,7 +41,7 @@
     const headingOffsetY = 5;
     const boxWidth = 60;
     const boxHeight = 80;
-    // const margin = 20;
+  // const margin = 20;
     const marginY = 20;
     const marginX = 10;
     const startX = 20;
@@ -74,7 +73,7 @@
     startDrawing();
 
     const saved = JSON.parse(localStorage.getItem("savedLetters")) || [];
-    savedLetters.set(saved);
+    savaedLetters.set(saved);
     saved.forEach((letter) => {
       const image = localStorage.getItem(letter);
       handwriting.update((h) => {
@@ -86,14 +85,12 @@
   });
 
   function generateAlphabet() {
-    let result = [];
-    for (let i = 65; i <= 122; i++) {
-      if ((i >= 65 && i <= 90) || (i >= 97 && i <= 122)) {
-        result.push(String.fromCharCode(i));
-      }
+    let result = {};
+    for (let i = 65; i <= 90; i++) {
+      result[String.fromCharCode(i)] = null;
     }
-    for (let i = 48; i <= 57; i++) {
-      result.push(String.fromCharCode(i));
+    for (let i = 97; i <= 122; i++) {
+      result[String.fromCharCode(i)] = null;
     }
     return result;
   }
@@ -141,19 +138,23 @@
     previewText += letter;
   }
 
-  function nextLetter() {
-    currentIndex = (currentIndex + 1) % letters.length;
-    previewText = "";
-    char = letters[currentIndex];
-    updateCanvas(char);
-  }
 
-  function prevLetter() {
-    currentIndex = (currentIndex - 1 + letters.length) % letters.length;
-    previewText = "";
-    char = letters[currentIndex];
-    updateCanvas(char);
-  }
+;
+
+
+function nextLetter() {
+  currentIndex = (currentIndex + 1) % letters.length;
+  char = letters[currentIndex]; // update char with the next letter
+  previewText = "";
+  updateCanvas(char);
+}
+
+function prevLetter() {
+  currentIndex = (currentIndex - 1 + letters.length) % letters.length;
+  char = letters[currentIndex]; // update char with the previous letter
+  previewText = "";
+  updateCanvas(char);
+}
 
   function updateCanvas(letter) {
     const image = localStorage.getItem(letter);
@@ -272,71 +273,71 @@
         </svg>
       </button>
     </div>
-      <div
-        class="text-gray-900 text-sm px-4 py-2 dark:text-white flex flex-col w-auto"
-      >
-        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-        <div
-          class="flex justify-between cursor-pointer mb-2"
-          on:click={() => (showLanguagesOptions = !showLanguagesOptions)}
-          tabindex="0"
-          on:keydown={(e) =>
-            e.key === "Enter" && (showLanguagesOptions = !showLanguagesOptions)}
-        >
-          Languages
-          {#if showLanguagesOptions}
-            <span>-</span>
-          {:else}
-            <span>+</span>
-          {/if}
-        </div>
-        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-        <div
-          class="flex justify-between cursor-pointer mb-2"
-          on:click={() => (showBasicsOptions = !showBasicsOptions)}
-          on:keydown={(e) =>
-            (e.key === "Enter" || e.key === " ") &&
-            (showBasicsOptions = !showBasicsOptions)}
-          tabindex="0"
-        >
-          Basics
-          {#if showBasicsOptions}
-            <span>-</span>
-          {:else}
-            <span>+</span>
-          {/if}
-        </div>
-        {#if showBasicsOptions}
-          <ul class="ml-4" id="basics-options">
-            <li class="pb-2 flex">
-              <button class="flex-none">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="20"
-                  width="17.5"
-                  viewBox="0 0 448 512"
-                >
-                  <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-                  <path
-                    fill="#63E6BE"
-                    d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-                  /></svg
-                >
-              </button>
-              <p class="grow px-2">Alphabet</p>
-              <button class="flex-none">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="14"
-                  width="12.25"
-                  viewBox="0 0 448 512"
-                  ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
-                    fill="#ff0000"
-                    d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"
-                  /></svg
-                >
-              </button>
-            </li>
+    <div
+    class="text-gray-900 text-sm px-4 py-2 dark:text-white flex flex-col w-auto"
+  >
+    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+    <div
+      class="flex justify-between cursor-pointer mb-2"
+      on:click={() => (showLanguagesOptions = !showLanguagesOptions)}
+      tabindex="0"
+      on:keydown={(e) =>
+        e.key === "Enter" && (showLanguagesOptions = !showLanguagesOptions)}
+    >
+      Languages
+      {#if showLanguagesOptions}
+        <span>-</span>
+      {:else}
+        <span>+</span>
+      {/if}
+    </div>
+    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+    <div
+      class="flex justify-between cursor-pointer mb-2"
+      on:click={() => (showBasicsOptions = !showBasicsOptions)}
+      on:keydown={(e) =>
+        (e.key === "Enter" || e.key === " ") &&
+        (showBasicsOptions = !showBasicsOptions)}
+      tabindex="0"
+    >
+      Basics
+      {#if showBasicsOptions}
+        <span>-</span>
+      {:else}
+        <span>+</span>
+      {/if}
+    </div>
+    {#if showBasicsOptions}
+      <ul class="ml-4" id="basics-options">
+        <li class="pb-2 flex">
+          <button class="flex-none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20"
+              width="17.5"
+              viewBox="0 0 448 512"
+            >
+              <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+              <path
+                fill="#63E6BE"
+                d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.764 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+              /></svg
+            >
+          </button>
+          <p class="grow px-2">{char}</p>
+          <button class="flex-none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="14"
+              width="12.25"
+              viewBox="0 0 448 512"
+              ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
+                fill="#ff0000"
+                d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"
+              /></svg
+            >
+          </button>
+        </li>
             <li class="pb-2 flex">
               <button class="flex-none">
                 <svg
@@ -445,9 +446,9 @@
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <div
         class="letter flex items-center justify-center text-4xl px-5 py-3 rounded-xl dark:text-white text-gray-900 border dark:border-gray-600 border-gray-400"
-        on:click={() => updatePreview(letters[currentIndex])}
+        on:click={() => updatePreview(letters[char])}
       >
-        {letters[currentIndex]}
+        {char}
       </div>
 
       <button
