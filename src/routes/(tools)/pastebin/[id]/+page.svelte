@@ -1,9 +1,10 @@
 <script>
   import { onMount } from "svelte";
   import { page } from "$app/stores"; // Import $page from $app/stores
-
+  import { HighlightAuto } from "svelte-highlight";
+  import atomOneDark from "svelte-highlight/styles/atom-one-dark";
   let paste = null;
-
+  let code = null;
   onMount(async () => {
     const id = $page.params.id; // Now $page is correctly imported and can be used
     console.log(`fetching /pastebin/api?id=${id}`);
@@ -35,16 +36,25 @@
       return `${Math.floor(secondsRemaining / 86400)} days`;
     }
   }
+
+  function handleassignment() {
+    code = paste.text;
+    return "";
+  }
 </script>
 
+<svelte:head>
+  {@html atomOneDark}
+</svelte:head>
+
 {#if paste}
+  {handleassignment()}
   <div class="container mx-auto my-8">
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="bg-gray-800 rounded-lg shadow-md p-6">
       <h1 class="text-2xl font-bold mb-4">{paste.title}</h1>
-      <p class="mb-4">{paste.text}</p>
-      <div class="flex justify-end">
-        <span class="badge badge-secondary"> Not Encrypted </span>
-      </div>
+
+      <HighlightAuto {code} />
+
       <div class="card-actions justify-end">
         <div class="badge badge-outline">
           {formatExpirationTime(paste.expirationTimestamp)}
