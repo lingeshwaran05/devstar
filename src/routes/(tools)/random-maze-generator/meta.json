@@ -1,0 +1,27 @@
+{
+    "name": "Random Maze Generator",
+    "description":"Create random maze based on parameters but following an SVG Path",
+    "contributors": [{
+        "name": "Ayushi Mahajan",
+        "githubId": "ayushimahajan295"
+    }, {
+        "name": "Shruti Mishra",
+        "githubId": "Shruti26122003"
+    },
+    {
+        "name": "Riya",
+        "githubId": "Riyakumari212713"
+    },
+    {
+        "name": "Arpit Salaria",
+        "githubId": "arpitsalaria03"
+    },
+    {
+        "name": "Mokshada Patil",
+        "githubId": "mokshadapatil"
+    },
+    {
+        "name": "Rohan Waghode",
+        "githubId": "RSW1511"
+    }]
+}
