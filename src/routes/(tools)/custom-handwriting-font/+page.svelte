@@ -2,13 +2,10 @@
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
 
-  let letters = Object.keys(generateAlphabet()); // assuming generateAlphabet function returns an object with alphabet keys
+  let letters = Object.keys(generateAlphabet());
   let showTemplates = true;
-  let showMyFonts = false;
-  let showBasicsOptions = true;
-  let showLanguagesOptions = true;
   let currentIndex = 0;
-  let char = letters[currentIndex]
+  let char = letters[currentIndex];
   let previewText = "";
   let drawingCanvas;
   let drawingCtx;
@@ -17,63 +14,70 @@
   let isEraser = false;
   let penWidth = 2;
   let eraserWidth = 10;
+  let fonts = writable([]); // Store for dynamic fonts
 
+  // Constants for the SVG template, handle download properties
   const handleDownload = () => {
-    // A4 dimensions (approx. 595 x 842 pixels)
     const a4Width = 595;
     const a4Height = 842;
 
-    // Create a canvas element
-    const canvas = document.createElement('canvas');
-    canvas.width = a4Width;
-    canvas.height = a4Height;
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", a4Width);
+    svg.setAttribute("height", a4Height);
+    svg.setAttribute("viewBox", `0 0 ${a4Width} ${a4Height}`);
 
-    const ctx = canvas.getContext('2d');
-
-    // Set up styles
-    ctx.fillStyle = '#ffffff'; 
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = '#000000'; // box color
-    ctx.font = '14px Arial'; 
-    ctx.textAlign = 'center';
-
-    const headingOffsetY = 5;
-    const boxWidth = 60;
-    const boxHeight = 80;
-  // const margin = 20;
-    const marginY = 20;
-    const marginX = 10;
-    const startX = 20;
-    const startY = 20;
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("width", "100%");
+    rect.setAttribute("height", "100%");
+    rect.setAttribute("fill", "#ffffff");
+    svg.appendChild(rect);
 
     letters.forEach((letter, index) => {
       const x = startX + (index % 8) * (boxWidth + marginX);
       const y = startY + Math.floor(index / 8) * (boxHeight + marginY);
 
-      // heading
-      ctx.fillText(letter, x + boxWidth / 2, y - headingOffsetY);
+      const text = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+      );
+      text.setAttribute("x", x + boxWidth / 2);
+      text.setAttribute("y", y - headingOffsetY);
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("font-family", "Arial");
+      text.setAttribute("font-size", "14");
+      text.setAttribute("fill", "#000000");
+      text.textContent = letter;
+      svg.appendChild(text);
 
-      // empty box
-      ctx.strokeRect(x, y, boxWidth, boxHeight);
+      const rect = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "rect"
+      );
+      rect.setAttribute("x", x);
+      rect.setAttribute("y", y);
+      rect.setAttribute("width", boxWidth);
+      rect.setAttribute("height", boxHeight);
+      rect.setAttribute("fill", "none");
+      rect.setAttribute("stroke", "#000000");
+      svg.appendChild(rect);
     });
 
-    // canvas to PNG 
-    const dataUrl = canvas.toDataURL('image/png');
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svg);
+    const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
 
-    // + link element and trigger download
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = 'handwriting_template.png';
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "handwriting_template.svg";
     link.click();
   };
 
+  // Start the app
   onMount(() => {
     drawingCtx = drawingCanvas.getContext("2d");
     startDrawing();
-
     const saved = JSON.parse(localStorage.getItem("savedLetters")) || [];
-    savaedLetters.set(saved);
+    savedLetters.set(saved);
     saved.forEach((letter) => {
       const image = localStorage.getItem(letter);
       handwriting.update((h) => {
@@ -84,6 +88,7 @@
     updateCanvas(char);
   });
 
+  // Generate alphabet and numbers in the keyboard and canvas heading letters
   function generateAlphabet() {
     let result = {};
     for (let i = 65; i <= 90; i++) {
@@ -92,13 +97,20 @@
     for (let i = 97; i <= 122; i++) {
       result[String.fromCharCode(i)] = null;
     }
+    for (let i = 48; i <= 57; i++) {
+      // ASCII codes for 0-9
+      result[String.fromCharCode(i)] = null;
+    }
     return result;
   }
 
+  // Save handwriting to local storage
   const saveHandwriting = async () => {
-    const image = drawingCanvas.toDataURL("image/png");
+    const svg = createSvgFromCanvas(drawingCanvas);
     const letter = letters[currentIndex];
-    localStorage.setItem(letter, image);
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svg);
+    localStorage.setItem(letter, svgString);
     savedLetters.update((saved) => {
       if (!saved.includes(letter)) {
         saved.push(letter);
@@ -108,11 +120,26 @@
     });
 
     handwriting.update((h) => {
-      h[letter] = image;
+      h[letter] = svgString;
       return h;
     });
   };
 
+  // Create SVG from canvas
+  function createSvgFromCanvas(canvas) {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", canvas.width);
+    svg.setAttribute("height", canvas.height);
+    const image = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "image"
+    );
+    image.setAttribute("href", canvas.toDataURL("image/png"));
+    svg.appendChild(image);
+    return svg;
+  }
+
+  // for delete button in the local storage
   function deleteLetter(letter) {
     savedLetters.update((saved) => {
       const index = saved.indexOf(letter);
@@ -123,39 +150,50 @@
       }
       return saved;
     });
-
     handwriting.update((h) => {
       delete h[letter];
       return h;
     });
-
     if (letter === char) {
       updateCanvas(char);
     }
   }
 
+  // for preview button
   function updatePreview(letter) {
     previewText += letter;
   }
 
+  // handle keypress event
+  function handleKeyPress(event) {
+    const letter = event.key;
 
-;
+    if (letters.includes(letter)) {
+      updatePreview(letter);
+    } else if (letter === " ") {
+      updatePreview(" ");
+    } else if (event.key === "Backspace") {
+      previewText = previewText.slice(0, -1);
+    }
+  }
 
+  window.addEventListener("keydown", handleKeyPress);
 
-function nextLetter() {
-  currentIndex = (currentIndex + 1) % letters.length;
-  char = letters[currentIndex]; // update char with the next letter
-  previewText = "";
-  updateCanvas(char);
-}
+  // for next button
+  function nextLetter() {
+    currentIndex = (currentIndex + 1) % letters.length;
+    char = letters[currentIndex];
+    updateCanvas(char);
+  }
 
-function prevLetter() {
-  currentIndex = (currentIndex - 1 + letters.length) % letters.length;
-  char = letters[currentIndex]; // update char with the previous letter
-  previewText = "";
-  updateCanvas(char);
-}
+  // for previous button
+  function prevLetter() {
+    currentIndex = (currentIndex - 1 + letters.length) % letters.length;
+    char = letters[currentIndex];
+    updateCanvas(char);
+  }
 
+  // Update canvas with the selected letter
   function updateCanvas(letter) {
     const image = localStorage.getItem(letter);
     if (image) {
@@ -170,6 +208,7 @@ function prevLetter() {
     }
   }
 
+  // Start drawing on the canvas
   function startDrawing() {
     updateTool();
     drawingCanvas.addEventListener("mousedown", handleMouseDown);
@@ -178,9 +217,10 @@ function prevLetter() {
     drawingCanvas.addEventListener("mouseleave", handleMouseUp);
   }
 
+  // Update the tool based on the selected tool
   $: updateTool = () => {
     drawingCtx.lineWidth = isEraser ? eraserWidth : penWidth;
-    drawingCtx.strokeStyle = isEraser ? "#fff" : "#000"; // assuming canvas background is #f9f9f9
+    drawingCtx.strokeStyle = isEraser ? "#fff" : "#000";
     drawingCanvas.style.cursor = isEraser
       ? "url(data:image/svg+xml;base64," +
         btoa(
@@ -194,6 +234,7 @@ function prevLetter() {
         ") 0 20, auto";
   };
 
+  // Toggle eraser function
   function toggleEraser() {
     isEraser = !isEraser;
     updateTool();
@@ -201,6 +242,7 @@ function prevLetter() {
 
   let isDrawing = false;
 
+  // Get mouse position
   function getMousePos(event) {
     const rect = drawingCanvas.getBoundingClientRect();
     return {
@@ -209,6 +251,7 @@ function prevLetter() {
     };
   }
 
+  // Handle mouse events when the user is drawing towards down
   function handleMouseDown(event) {
     const { x, y } = getMousePos(event);
     isDrawing = true;
@@ -216,6 +259,7 @@ function prevLetter() {
     drawingCtx.moveTo(x, y);
   }
 
+  // Handle mouse events when the user is drawing towards up
   function handleMouseMove(event) {
     if (!isDrawing) return;
     const { x, y } = getMousePos(event);
@@ -223,184 +267,167 @@ function prevLetter() {
     drawingCtx.stroke();
   }
 
+  // Handle mouse events when the user is drawing towards up
   function handleMouseUp() {
     isDrawing = false;
     drawingCtx.closePath();
   }
 
+  // Download the canvas as SVG
   const downloadCanvas = () => {
     const link = document.createElement("a");
-    const downloadCanvas = document.createElement("canvas");
-    const downloadCtx = downloadCanvas.getContext("2d");
 
-    downloadCanvas.width = 320;
-    downloadCanvas.height = 320;
+    // Create an SVG element
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", "320");
+    svg.setAttribute("height", "320");
+    svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
 
-    // Draw the current canvas content onto the download canvas with the specified size
-    downloadCtx.drawImage(
-      drawingCanvas,
-      0,
-      0,
-      downloadCanvas.width,
-      downloadCanvas.height
+    // Create a rectangle to fill the background with white
+    const background = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "rect"
     );
+    background.setAttribute("width", "100%");
+    background.setAttribute("height", "100%");
+    background.setAttribute("fill", "#ffffff");
+    svg.appendChild(background);
 
-    link.download = `${char}.png`;
-    link.href = downloadCanvas.toDataURL("image/png");
+    // Create an image element to hold the canvas content
+    const image = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "image"
+    );
+    image.setAttribute("width", "320");
+    image.setAttribute("height", "320");
+    image.setAttribute("href", drawingCanvas.toDataURL("image/png"));
+    svg.appendChild(image);
+
+    // Serialize the SVG to a string
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svg);
+    const svgBlob = new Blob([svgString], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    const svgUrl = URL.createObjectURL(svgBlob);
+
+    // Set up the download link
+    link.download = `${char}.svg`;
+    link.href = svgUrl;
     link.click();
   };
+
+  // Add new font function
+  function addFont() {
+    fonts.update((current) => [
+      ...current,
+      { id: Date.now(), name: "My Font", editing: false },
+    ]);
+  }
+
+  // Delete font function
+  function deleteFont(id) {
+    fonts.update((current) => current.filter((font) => font.id !== id));
+  }
+
+  // Edit font name function
+  function editFont(id, newName) {
+    fonts.update((current) =>
+      current.map((font) =>
+        font.id === id ? { ...font, name: newName, editing: false } : font
+      )
+    );
+  }
+
+  // Toggle editing state
+  function toggleEditFont(id) {
+    fonts.update((current) =>
+      current.map((font) =>
+        font.id === id ? { ...font, editing: !font.editing } : font
+      )
+    );
+  }
 </script>
 
 <section
   class="dark:border-gray-800 border-gray-200 border-4 items-center mb-4 grid lg:grid-cols-2 overflow-hidden rounded-2xl"
 >
   <!-- Sidebar div starts here -->
+  <div class="px-6 py-10 h-full">
+    <!-- Fonts Collection -->
+    <div class="flex gap-4 pb-4">
+      <p class="dark:text-white text-gray-900 text-xl">Fonts Collection</p>
 
-  <div class="px-4 py-10 h-full">
-    <div class="p-2">
-      <div class="flex gap-2">
-      <button
-        on:click={() => (showTemplates = !showTemplates)}
-        class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-8 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-2"
-      >
-        Generate Template
+      <button on:click={addFont}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="20"
+          width="20"
+          viewBox="0 0 512 512"
+          ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
+            fill="#63E6BE"
+            d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344V280H168c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H280v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+          /></svg
+        >
       </button>
-      <!-- download template button -->
-      <button on:click={handleDownload} class="bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-8 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-2">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height="20">
-          <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-          <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/>
-        </svg>
+      <button on:click={handleDownload}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="20"
+          width="20"
+          viewBox="0 0 512 512"
+          ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
+            fill="#63E6BE"
+            d="M256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM127 281c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l71 71L232 136c0-13.3 10.7-24 24-24s24 10.7 24 24l0 182.1 71-71c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9L273 393c-9.4 9.4-24.6 9.4-33.9 0L127 281z"
+          /></svg
+        >
       </button>
     </div>
+
+    <hr class="py-2" />
+
+    <!-- My Fonts -->
     <div
-    class="text-gray-900 text-sm px-4 py-2 dark:text-white flex flex-col w-auto"
-  >
-    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <div
-      class="flex justify-between cursor-pointer mb-2"
-      on:click={() => (showLanguagesOptions = !showLanguagesOptions)}
-      tabindex="0"
-      on:keydown={(e) =>
-        e.key === "Enter" && (showLanguagesOptions = !showLanguagesOptions)}
+      class="text-gray-900 text-sm px-4 py-2 dark:text-white flex flex-col w-auto"
     >
-      Languages
-      {#if showLanguagesOptions}
-        <span>-</span>
-      {:else}
-        <span>+</span>
-      {/if}
+      <ul>
+        {#each $fonts as font}
+          <li class="mb-2 flex items-center">
+            {#if font.editing}
+              <input
+                type="text"
+                class="px-2 py-1 w-full border dark:bg-gray-700 dark:text-white"
+                bind:value={font.name}
+                on:blur={() => editFont(font.id, font.name)}
+                on:keydown={(e) =>
+                  e.key === "Enter" && editFont(font.id, font.name)}
+              />
+            {:else}
+              <span
+                class="ml-2 cursor-pointer"
+                on:dblclick={() => toggleEditFont(font.id)}>{font.name}</span
+              >
+            {/if}
+            <button class="flex-none ml-2" on:click={() => deleteFont(font.id)}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="14"
+                width="12.25"
+                viewBox="0 0 448 512"
+              >
+                <path
+                  fill="#ff0000"
+                  d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"
+                />
+              </svg>
+            </button>
+          </li>
+        {/each}
+      </ul>
     </div>
-    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <div
-      class="flex justify-between cursor-pointer mb-2"
-      on:click={() => (showBasicsOptions = !showBasicsOptions)}
-      on:keydown={(e) =>
-        (e.key === "Enter" || e.key === " ") &&
-        (showBasicsOptions = !showBasicsOptions)}
-      tabindex="0"
-    >
-      Basics
-      {#if showBasicsOptions}
-        <span>-</span>
-      {:else}
-        <span>+</span>
-      {/if}
-    </div>
-    {#if showBasicsOptions}
-      <ul class="ml-4" id="basics-options">
-        <li class="pb-2 flex">
-          <button class="flex-none">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="20"
-              width="17.5"
-              viewBox="0 0 448 512"
-            >
-              <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-              <path
-                fill="#63E6BE"
-                d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.764 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-              /></svg
-            >
-          </button>
-          <p class="grow px-2">{char}</p>
-          <button class="flex-none">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="14"
-              width="12.25"
-              viewBox="0 0 448 512"
-              ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
-                fill="#ff0000"
-                d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"
-              /></svg
-            >
-          </button>
-        </li>
-            <li class="pb-2 flex">
-              <button class="flex-none">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="20"
-                  width="17.5"
-                  viewBox="0 0 448 512"
-                >
-                  <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-                  <path
-                    fill="#63E6BE"
-                    d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-                  /></svg
-                >
-              </button>
-              <p class="grow px-2">Numbers</p>
-              <button class="flex-none">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="14"
-                  width="12.25"
-                  viewBox="0 0 448 512"
-                  ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
-                    fill="#ff0000"
-                    d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"
-                  /></svg
-                >
-              </button>
-            </li>
-            <li class="pb-2 flex">
-              <button class="flex-none">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="20"
-                  width="17.5"
-                  viewBox="0 0 448 512"
-                >
-                  <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-                  <path
-                    fill="#63E6BE"
-                    d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM200 344V280H136c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H248v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-                  /></svg
-                >
-              </button>
-              <p class="grow px-2">Punctuation</p>
-              <button class="flex-none">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="14"
-                  width="12.25"
-                  viewBox="0 0 448 512"
-                  ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
-                    fill="#ff0000"
-                    d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"
-                  /></svg
-                >
-              </button>
-            </li>
-          </ul>
-        {/if}
-      </div>
-    </div>
-    <div class="m-2">
+
+    <!-- Keyboard -->
+    <div class="m-4">
       {#if showTemplates}
         <ul class="flex flex-wrap justify-center items-center gap-2">
           {#each letters as letter}
@@ -415,34 +442,24 @@ function prevLetter() {
         </ul>
       {/if}
     </div>
-    <div class="p-2">
-      <button
-        on:click={() => (showMyFonts = !showMyFonts)}
-        class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-8 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-      >
-        My Fonts
-      </button>
-      {#if showMyFonts}
-        <div
-          class="text-gray-900 text-sm px-4 py-2 dark:text-white flex flex-col w-auto"
-        >
-          <ul>
-            {#each Object.keys($handwriting) as key}
-              <li class="mb-2 flex items-center">
-                <img src={$handwriting[key]} alt={key} class="w-8 h-8" />
-                <span class="ml-2">{key}</span>
-              </li>
-            {/each}
-          </ul>
-        </div>
-      {/if}
+
+    <!-- Preview -->
+    <div class="preview-text my-6 w-full bg-blue-50 rounded-lg">
+      <p class="p-4">
+        {#if previewText}
+          {previewText}
+        {:else}
+          Preview your font
+        {/if}
+      </p>
     </div>
   </div>
 
   <!-- Canvas div starts here -->
-
   <div class="dark:bg-gray-800 bg-gray-200 px-4 py-10 h-full">
+    <!-- Upper div -->
     <div class="letters flex justify-center items-center mx-2 my-6">
+      <!-- display letter -->
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <div
         class="letter flex items-center justify-center text-4xl px-5 py-3 rounded-xl dark:text-white text-gray-900 border dark:border-gray-600 border-gray-400"
@@ -451,14 +468,15 @@ function prevLetter() {
         {char}
       </div>
 
+      <!-- toggle button eraser and pen -->
       <button
-        class="cursor-pointer mx-6 text-sm p-4 rounded-full border-2 border-blue-500 hover:border-green-600"
+        class="cursor-pointer mx-6 text-sm p-4 bg-blue-500 rounded-full hover:bg-green-600"
         on:click={toggleEraser}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          height="20"
-          width={isEraser ? "40" : "40"}
+          height="28"
+          width={isEraser ? "28" : "28"}
           viewBox={isEraser ? "0 0 576 512" : "0 0 512 512"}
         >
           <path
@@ -486,7 +504,6 @@ function prevLetter() {
           <span class="ml-2">{penWidth}</span>
         </div>
       {/if}
-
       {#if isEraser}
         <div
           class="flex items-center justify-center text-black dark:text-white"
@@ -505,6 +522,7 @@ function prevLetter() {
       {/if}
     </div>
 
+    <!-- Drawing Container -->
     <div
       class="drawing-container w-80 h-80 mx-auto rounded-xl mb-4 border-4 border-gray-500"
     >
@@ -516,8 +534,9 @@ function prevLetter() {
       </canvas>
     </div>
 
+    <!-- All the 5 buttons -->
     <div class="m-4 flex gap-6 items-center justify-center">
-      <!-- Delete Button -->
+      <!-- delete svg font button -->
       <button
         class="cursor-pointer"
         on:click={() => deleteLetter(letters[currentIndex])}
@@ -528,7 +547,6 @@ function prevLetter() {
           width="38"
           viewBox="0 0 448 512"
         >
-          <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
           <path
             fill="#ff0000"
             d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"
@@ -536,61 +554,65 @@ function prevLetter() {
         </svg>
       </button>
 
-      <!-- Previous Button -->
+      <!-- Previous button -->
       <button class="cursor-pointer" on:click={prevLetter}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           height="40"
           width="40"
           viewBox="0 0 448 512"
-          ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
+        >
+          <path
             fill="#7d52ff"
             d="M0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32C28.7 32 0 60.7 0 96L0 416zM128 256c0-6.7 2.8-13 7.7-17.6l112-104c7-6.5 17.2-8.2 25.9-4.4s14.4 12.5 14.4 22l0 208c0 9.5-5.7 18.2-14.4 22s-18.9 2.1-25.9-4.4l-112-104c-4.9-4.5-7.7-10.9-7.7-17.6z"
-          /></svg
-        ></button
-      >
+          />
+        </svg>
+      </button>
 
-      <!-- Next Button -->
-      <button class="cursor-pointer" on:click={nextLetter}
-        ><svg
+      <!-- Next button -->
+      <button class="cursor-pointer" on:click={nextLetter}>
+        <svg
           xmlns="http://www.w3.org/2000/svg"
           height="40"
           width="40"
           viewBox="0 0 448 512"
-          ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
+        >
+          <path
             fill="#7d52ff"
             d="M448 96c0-35.3-28.7-64-64-64L64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320zM320 256c0 6.7-2.8 13-7.7 17.6l-112 104c-7 6.5-17.2 8.2-25.9 4.4s-14.4-12.5-14.4-22l0-208c0-9.5 5.7-18.2 14.4-22s18.9-2.1 25.9 4.4l112 104c4.9-4.5 7.7 10.9 7.7 17.6z"
-          /></svg
-        ></button
-      >
+          />
+        </svg>
+      </button>
 
-      <!-- Save Button -->
-      <button class="cursor-pointer" on:click={saveHandwriting}
-        ><svg
+      <!-- Save font on local storage button -->
+      <button class="cursor-pointer" on:click={saveHandwriting}>
+        <svg
           xmlns="http://www.w3.org/2000/svg"
           height="34"
           width="24"
           viewBox="0 0 384 512"
-          ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
+        >
+          <path
             fill="#f58f00"
             d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM216 408c0 13.3-10.7 24-24 24s-24-10.7-24-24V305.9l-31 31c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l72-72c9.4-9.4 24.6-9.4 33.9 0l72 72c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-31-31V408z"
-          /></svg
-        ></button
-      >
+          />
+        </svg>
+      </button>
 
-      <!-- Download Button -->
-      <button class="cursor-pointer" on:click={downloadCanvas}
-        ><svg
+      <!-- download svg font button -->
+      <button class="cursor-pointer" on:click={downloadCanvas}>
+        <svg
           xmlns="http://www.w3.org/2000/svg"
           height="34"
           width="40"
           viewBox="0 0 512 512"
-          ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
+        >
+          <path
             fill="#22cc00"
             d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
-          /></svg
-        ></button
-      >
+          />
+        </svg>
+      </button>
     </div>
   </div>
 </section>
