@@ -1,6 +1,11 @@
 <script>
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
+  import {createFontFromSVGs} from "$lib/fontUtils";
+
+  function handleCreateFont(){
+    createFontFromSVGs();
+  }
 
   let letters = Object.keys(generateAlphabet());
   let currentIndex = 0;
@@ -598,6 +603,7 @@
           />
         </svg>
       </button>
+      <button class="text-white" on:click={handleCreateFont}>Create Font</button>
     </div>
   </div>
 </section>
