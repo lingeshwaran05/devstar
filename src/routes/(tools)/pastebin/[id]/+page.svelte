@@ -3,6 +3,8 @@
   import { page } from "$app/stores"; // Import $page from $app/stores
   import { HighlightAuto } from "svelte-highlight";
   import atomOneDark from "svelte-highlight/styles/atom-one-dark";
+  import ClipboardJS from "clipboard";
+  import toast, { Toaster } from "svelte-french-toast";
   let paste = null;
   let code = null;
   onMount(async () => {
@@ -13,6 +15,7 @@
       .then((data) => {
         // console.log("Fetched paste:", data.id);
         paste = data.id;
+        new ClipboardJS(".btn-clip");
       })
       .catch((error) => {
         console.log("Error fetching paste:", error);
@@ -51,15 +54,27 @@
   {handleassignment()}
   <div class="container mx-auto my-8">
     <div class="bg-gray-800 rounded-lg shadow-md p-6">
-      <h1 class="text-2xl font-bold mb-4">{paste.title}</h1>
-
-      <HighlightAuto {code} />
-
-      <div class="card-actions justify-end">
-        <div class="badge badge-outline">
+      <div class="card-actions">
+        <div
+          class="badge badge-outline flex justify-betweenflex justify-between"
+        >
+          <h1 class="text-2xl mb-4">{paste.title}</h1>
           {formatExpirationTime(paste.expirationTimestamp)}
         </div>
+
+        <HighlightAuto {code} />
       </div>
+      <button
+        on:click={() => {
+          // toast("Here is your toast.");
+          toast.success("copied to clipboard");
+        }}
+        class="btn-clip bg-green-600 hover:bg-lime-600 text-white font-medium py-2 px-4 mt-3 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        data-clipboard-text={code}
+      >
+        COPY TEXT
+      </button>
+      <Toaster />
     </div>
   </div>
 {:else}
