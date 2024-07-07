@@ -5,8 +5,10 @@
   import atomOneDark from "svelte-highlight/styles/atom-one-dark";
   import ClipboardJS from "clipboard";
   import toast, { Toaster } from "svelte-french-toast";
+  import { jsPDF } from "jspdf";
   let paste = null;
   let code = null;
+  const doc = new jsPDF();
   onMount(async () => {
     const id = $page.params.id; // Now $page is correctly imported and can be used
     console.log(`fetching /pastebin/api?id=${id}`);
@@ -42,6 +44,7 @@
 
   function handleassignment() {
     code = paste.text;
+
     return "";
   }
 </script>
@@ -64,17 +67,41 @@
 
         <HighlightAuto {code} />
       </div>
-      <button
-        on:click={() => {
-          // toast("Here is your toast.");
-          toast.success("copied to clipboard");
-        }}
-        class="btn-clip bg-green-600 hover:bg-lime-600 text-white font-medium py-2 px-4 mt-3 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        data-clipboard-text={code}
-      >
-        COPY TEXT
-      </button>
       <Toaster />
+      <div class="flex justify-between">
+        <button
+          on:click={() => {
+            // toast("Here is your toast.");
+            toast.success("copied to clipboard");
+          }}
+          class="btn-clip bg-green-600 hover:bg-lime-600 text-white font-medium py-2 px-4 mt-3 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          data-clipboard-text={code}
+        >
+          COPY TEXT
+        </button>
+        <button
+          on:click={() => {
+            doc.text(`${paste.text}`, 10, 10);
+            doc.save(`${paste.title}.pdf`);
+          }}
+          class="btn-clip bg-blue-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 mt-3 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          data-clipboard-text={code}
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" /></svg
+          >
+        </button>
+      </div>
     </div>
   </div>
 {:else}
