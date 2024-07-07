@@ -14,31 +14,33 @@
 <script lang="ts">
   export let data: { pastes: any[] };
   import Prism from "prismjs";
-  import "prismjs/themes/prism-tomorrow.css"; // Import the theme you prefer
-  // Import languages you need
+  import "prismjs/themes/prism-tomorrow.css";
   import "prismjs/components/prism-javascript";
   import "prismjs/components/prism-css";
   import "prismjs/components/prism-markup";
   import { Dropdown, DropdownItem } from "flowbite-svelte";
 
   let selectedLanguage = "markup";
-
-  function formatExpirationTime(expirationTimestamp: number): string {
-    const now = Date.now();
-    const secondsRemaining = Math.floor((expirationTimestamp - now) / 1000);
-
-    if (secondsRemaining <= 0) {
-      return "Expired";
-    } else if (secondsRemaining < 60) {
-      return `${secondsRemaining} seconds`;
-    } else if (secondsRemaining < 3600) {
-      return `${Math.floor(secondsRemaining / 60)} minutes`;
-    } else if (secondsRemaining < 86400) {
-      return `${Math.floor(secondsRemaining / 3600)} hours`;
-    } else {
-      return `${Math.floor(secondsRemaining / 86400)} days`;
-    }
+  function formatExpirationTime(expirationTimestamp: number | null): string {
+  if (expirationTimestamp === null) {
+    return "Never";
   }
+
+  const now = Date.now();
+  const secondsRemaining = Math.floor((expirationTimestamp - now) / 1000);
+
+  if (secondsRemaining <= 0) {
+    return "Expired";
+  } else if (secondsRemaining < 60) {
+    return `${secondsRemaining} seconds`;
+  } else if (secondsRemaining < 3600) {
+    return `${Math.floor(secondsRemaining / 60)} minutes`;
+  } else if (secondsRemaining < 86400) {
+    return `${Math.floor(secondsRemaining / 3600)} hours`;
+  } else {
+    return `${Math.floor(secondsRemaining / 86400)} days`;
+  }
+}
   function handleFileSelection(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
@@ -83,6 +85,10 @@
     textArea.style.display = "block"; // Show the textarea for editing
     codeBlock.style.display = "none"; // Hide the highlighted code
   }
+  function handleLanguageChange(event) {
+    selectedLanguage = event.target.value;
+    highlightSyntax();
+  }
 </script>
 
 <div
@@ -105,49 +111,26 @@
             required
           />
           <div class="text-black p-4">
-            <!-- <select bind:value={selectedLanguage} on:change={highlightSyntax}>
-			<option value="markup">HTML</option>
-			<option value="css">CSS</option>
-			<option value="javascript">JavaScript</option>
-		  </select> -->
-            <label
-              for="language-select"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 m"
-              >Select Language</label
-            >
-            <Dropdown id="language-select" style="inline={true}">
-              <DropdownItem
-                on:click={() => {
-                  selectedLanguage = "javascript";
-                  highlightSyntax();
-                }}>JavaScript</DropdownItem
-              >
-              <DropdownItem
-                on:click={() => {
-                  selectedLanguage = "css";
-                  highlightSyntax();
-                }}>CSS</DropdownItem
-              >
-              <DropdownItem
-                on:click={() => {
-                  selectedLanguage = "markup";
-                  highlightSyntax();
-                }}>HTML</DropdownItem
-              >
-            </Dropdown>
+        
+          <select class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 m" id="language-select" bind:value={selectedLanguage} on:change={handleLanguageChange}>
+              <option value="javascript">JavaScript</option>
+              <option value="css">CSS</option>
+              <option value="markup">HTML</option>
+            </select>
           </div>
         </div>
 
         <div>
           <label for="file" class="block font-medium mb-2">Select File</label>
           <input
-            type="file"
-            id="file"
-            name="file"
-            class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            accept=".txt,.c,.cpp"
-            on:change={handleFileSelection}
-          />
+          type="file"
+          id="file"
+          name="file"
+          class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          accept=".txt,.c,.cpp,.js,.css,.html,.py,.r,.m,.go,.java,.rb,.swift,.sql,.tsx,.sh,.csharp"
+          on:change={handleFileSelection}
+        />
+        
         </div>
 
         <div>
@@ -172,17 +155,22 @@
             >Paste Expiration</label
           >
           <select
-            id="paste_expiration"
-            name="paste_expiration"
-            class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="1 minute">1 Minute</option>
-            <option value="5 minutes">5 Minutes</option>
-            <option value="10 minutes">10 Minutes</option>
-            <option value="1 hour">1 Hour</option>
-            <option value="1 day">1 Day</option>
-            <option value="never">Never</option>
-          </select>
+  id="paste_expiration"
+  name="paste_expiration"
+  class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+>
+  <option value="1 minute">1 Minute</option>
+  <option value="5 minutes">5 Minutes</option>
+  <option value="10 minutes">10 Minutes</option>
+  <option value="1 hour">1 Hour</option>
+  <option value="1 day">1 Day</option>
+  <option value="1 week">1 Week</option>
+  <option value="1 month">1 Month</option>
+  <option value="2 months">2 Months</option>
+  <option value="6 months">6 Months</option>
+  <option value="12 months">12 Months</option>
+</select>
+
         </div>
         <button
           type="submit"
@@ -200,6 +188,8 @@
       </form>
     </div>
 
+
+    
     <div class="bg-gray-800 rounded-lg shadow-lg p-8">
       <h2 class="text-2xl font-bold mb-4">Recent Pastes</h2>
       {#if data.pastes && data.pastes.length > 0}
