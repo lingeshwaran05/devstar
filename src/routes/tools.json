@@ -1,31 +1,4 @@
 {
-    ".blank copy": {
-        "name": "",
-        "link": "/.blank copy",
-        "description": "",
-        "contributors": [
-            {
-                "name": "",
-                "githubId": ""
-            },
-            {
-                "name": "",
-                "githubId": ""
-            },
-            {
-                "name": "",
-                "githubId": ""
-            },
-            {
-                "name": "",
-                "githubId": ""
-            },
-            {
-                "name": "",
-                "githubId": ""
-            }
-        ]
-    },
     "add-prefix-suffix": {
         "name": "Add Prefix and Suffix",
         "link": "/add-prefix-suffix",
@@ -307,6 +280,33 @@
             }
         ]
     },
+    "liveQ&A": {
+        "name": "",
+        "link": "/liveQ&A",
+        "description": "",
+        "contributors": [
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            }
+        ]
+    },
     "living-background-generator": {
         "name": "Living Background Generator",
         "link": "/living-background-generator",
@@ -498,6 +498,33 @@
             }
         ]
     },
+    "pdf-toolkit": {
+        "name": "",
+        "link": "/pdf-toolkit",
+        "description": "",
+        "contributors": [
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            }
+        ]
+    },
     "permutations-of-a-string": {
         "name": "",
         "link": "/permutations-of-a-string",
@@ -559,6 +586,33 @@
             {
                 "name": "Hannan Satopay",
                 "githubId": "hannansatopay"
+            }
+        ]
+    },
+    "resume-builder": {
+        "name": "",
+        "link": "/resume-builder",
+        "description": "",
+        "contributors": [
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
             }
         ]
     },
