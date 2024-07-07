@@ -3,7 +3,6 @@
   import { writable } from "svelte/store";
 
   let letters = Object.keys(generateAlphabet());
-  let showTemplates = true;
   let currentIndex = 0;
   let char = letters[currentIndex];
   let previewText = "";
@@ -16,59 +15,44 @@
   let eraserWidth = 10;
   let fonts = writable([]); // Store for dynamic fonts
 
-  // Constants for the SVG template, handle download properties
+  // download png template file for hand-written handwriting
   const handleDownload = () => {
+    // A4 dimensions (approx. 595 x 842 pixels)
     const a4Width = 595;
     const a4Height = 842;
-
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("width", a4Width);
-    svg.setAttribute("height", a4Height);
-    svg.setAttribute("viewBox", `0 0 ${a4Width} ${a4Height}`);
-
-    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    rect.setAttribute("width", "100%");
-    rect.setAttribute("height", "100%");
-    rect.setAttribute("fill", "#ffffff");
-    svg.appendChild(rect);
-
+    // Create a canvas element
+    const canvas = document.createElement("canvas");
+    canvas.width = a4Width;
+    canvas.height = a4Height;
+    const ctx = canvas.getContext("2d");
+    // Set up styles
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#000000"; // box color
+    ctx.font = "14px Arial";
+    ctx.textAlign = "center";
+    const headingOffsetY = 5;
+    const boxWidth = 60;
+    const boxHeight = 80;
+    // const margin = 20;
+    const marginY = 20;
+    const marginX = 10;
+    const startX = 20;
+    const startY = 20;
     letters.forEach((letter, index) => {
       const x = startX + (index % 8) * (boxWidth + marginX);
       const y = startY + Math.floor(index / 8) * (boxHeight + marginY);
-
-      const text = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "text"
-      );
-      text.setAttribute("x", x + boxWidth / 2);
-      text.setAttribute("y", y - headingOffsetY);
-      text.setAttribute("text-anchor", "middle");
-      text.setAttribute("font-family", "Arial");
-      text.setAttribute("font-size", "14");
-      text.setAttribute("fill", "#000000");
-      text.textContent = letter;
-      svg.appendChild(text);
-
-      const rect = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "rect"
-      );
-      rect.setAttribute("x", x);
-      rect.setAttribute("y", y);
-      rect.setAttribute("width", boxWidth);
-      rect.setAttribute("height", boxHeight);
-      rect.setAttribute("fill", "none");
-      rect.setAttribute("stroke", "#000000");
-      svg.appendChild(rect);
+      // heading
+      ctx.fillText(letter, x + boxWidth / 2, y - headingOffsetY);
+      // empty box
+      ctx.strokeRect(x, y, boxWidth, boxHeight);
     });
-
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(svg);
-    const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-
+    // canvas to PNG
+    const dataUrl = canvas.toDataURL("image/png");
+    // + link element and trigger download
     const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "handwriting_template.svg";
+    link.href = dataUrl;
+    link.download = "handwriting_template.png";
     link.click();
   };
 
@@ -192,20 +176,24 @@
     updateCanvas(char);
   }
 
-  // Update canvas with the selected letter
+  // Update canvas with the selected letter + preview the letter if saved earlier
   function updateCanvas(letter) {
-    const image = localStorage.getItem(letter);
-    if (image) {
-      const img = new Image();
-      img.onload = () => {
-        drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-        drawingCtx.drawImage(img, 0, 0);
-      };
-      img.src = image;
-    } else {
+  const svgString = localStorage.getItem(letter);
+  if (svgString) {
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    
+    const img = new Image();
+    img.onload = () => {
       drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-    }
+      drawingCtx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url); // Clean up
+    };
+    img.src = url;
+  } else {
+    drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
   }
+}
 
   // Start drawing on the canvas
   function startDrawing() {
@@ -427,7 +415,6 @@
 
     <!-- Keyboard -->
     <div class="m-4">
-      {#if showTemplates}
         <ul class="flex flex-wrap justify-center items-center gap-2">
           {#each letters as letter}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -439,7 +426,6 @@
             </li>
           {/each}
         </ul>
-      {/if}
     </div>
 
     <!-- Preview -->
@@ -461,7 +447,7 @@
       <!-- display letter -->
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <div
-        class="letter flex items-center justify-center text-4xl px-5 py-3 rounded-xl dark:text-white text-gray-900 border dark:border-gray-600 border-gray-400"
+        class="cursor-pointer letter flex items-center justify-center text-4xl px-5 py-3 rounded-xl dark:text-white text-gray-900 border dark:border-gray-600 border-gray-400"
         on:click={() => updatePreview(letters[char])}
       >
         {char}
