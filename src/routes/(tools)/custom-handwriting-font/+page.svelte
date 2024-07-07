@@ -1,11 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
-  import {createFontFromSVGs} from "$lib/fontUtils";
-
-  function handleCreateFont(){
-    createFontFromSVGs();
-  }
+  import { createFontFromSVGs } from "$lib/fontUtils";
 
   let letters = Object.keys(generateAlphabet());
   let currentIndex = 0;
@@ -13,55 +9,57 @@
   let previewText = "";
   let drawingCanvas;
   let drawingCtx;
-  let handwriting = writable({});
+  let handwriting = writable(generateAlphabet());
   let savedLetters = writable([]);
   let isEraser = false;
+  let isDrawing = false;
   let penWidth = 2;
   let eraserWidth = 10;
   let fonts = writable([]); // Store for dynamic fonts
 
-  // download png template file for hand-written handwriting
+  // createFontFromSVGs is a function that takes the SVGs from the handwriting store and creates a font from them
+  function handleCreateFont() {
+    createFontFromSVGs();
+  }
+
+  // Function to download the handwriting template
   const handleDownload = () => {
-    // A4 dimensions (approx. 595 x 842 pixels)
     const a4Width = 595;
     const a4Height = 842;
-    // Create a canvas element
     const canvas = document.createElement("canvas");
     canvas.width = a4Width;
     canvas.height = a4Height;
     const ctx = canvas.getContext("2d");
-    // Set up styles
+
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#000000"; // box color
+    ctx.fillStyle = "#000000";
     ctx.font = "14px Arial";
     ctx.textAlign = "center";
+
     const headingOffsetY = 5;
     const boxWidth = 60;
     const boxHeight = 80;
-    // const margin = 20;
     const marginY = 20;
     const marginX = 10;
     const startX = 20;
     const startY = 20;
+
     letters.forEach((letter, index) => {
       const x = startX + (index % 8) * (boxWidth + marginX);
       const y = startY + Math.floor(index / 8) * (boxHeight + marginY);
-      // heading
       ctx.fillText(letter, x + boxWidth / 2, y - headingOffsetY);
-      // empty box
       ctx.strokeRect(x, y, boxWidth, boxHeight);
     });
-    // canvas to PNG
+
     const dataUrl = canvas.toDataURL("image/png");
-    // + link element and trigger download
     const link = document.createElement("a");
     link.href = dataUrl;
     link.download = "handwriting_template.png";
     link.click();
   };
 
-  // Start the app
+  // Function to update the tool, keyboard and canvas
   onMount(() => {
     drawingCtx = drawingCanvas.getContext("2d");
     startDrawing();
@@ -78,7 +76,7 @@
     window.addEventListener("keydown", handleKeyPress);
   });
 
-  // Generate alphabet and numbers in the keyboard and canvas heading letters
+  // Function to generate the alphabet, letters and numbers
   function generateAlphabet() {
     let result = {};
     for (let i = 65; i <= 90; i++) {
@@ -88,13 +86,12 @@
       result[String.fromCharCode(i)] = null;
     }
     for (let i = 48; i <= 57; i++) {
-      // ASCII codes for 0-9
       result[String.fromCharCode(i)] = null;
     }
     return result;
   }
 
-  // Save handwriting to local storage
+  // Function to save the handwriting
   const saveHandwriting = async () => {
     const svg = createSvgFromCanvas(drawingCanvas);
     const letter = letters[currentIndex];
@@ -115,7 +112,7 @@
     });
   };
 
-  // Create SVG from canvas
+  // Function to create SVG from canvas
   function createSvgFromCanvas(canvas) {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("width", canvas.width);
@@ -129,7 +126,7 @@
     return svg;
   }
 
-  // for delete button in the local storage
+  // Function to delete the letter
   function deleteLetter(letter) {
     savedLetters.update((saved) => {
       const index = saved.indexOf(letter);
@@ -149,15 +146,14 @@
     }
   }
 
-  // for preview button
+  // Function to update the preview
   function updatePreview(letter) {
     previewText += letter;
   }
 
-  // handle keypress event
+  // Function to handle key press
   function handleKeyPress(event) {
     const letter = event.key;
-
     if (letters.includes(letter)) {
       updatePreview(letter);
     } else if (letter === " ") {
@@ -167,40 +163,41 @@
     }
   }
 
-  // for next button
+  // Function to move to the next letter
   function nextLetter() {
     currentIndex = (currentIndex + 1) % letters.length;
     char = letters[currentIndex];
     updateCanvas(char);
   }
 
-  // for previous button
+  // Function to move to the previous letter
   function prevLetter() {
     currentIndex = (currentIndex - 1 + letters.length) % letters.length;
     char = letters[currentIndex];
     updateCanvas(char);
   }
 
-  // Update canvas with the selected letter + preview the letter if saved earlier
+  // Function to update the canvas
   function updateCanvas(letter) {
-  const svgString = localStorage.getItem(letter);
-  if (svgString) {
-    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    
-    const img = new Image();
-    img.onload = () => {
+    const svgString = localStorage.getItem(letter);
+    if (svgString) {
+      const blob = new Blob([svgString], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        drawingCtx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
+    } else {
       drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-      drawingCtx.drawImage(img, 0, 0);
-      URL.revokeObjectURL(url); // Clean up
-    };
-    img.src = url;
-  } else {
-    drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+    }
   }
-}
 
-  // Start drawing on the canvas
+  // Function to start drawing
   function startDrawing() {
     updateTool();
     drawingCanvas.addEventListener("mousedown", handleMouseDown);
@@ -209,7 +206,7 @@
     drawingCanvas.addEventListener("mouseleave", handleMouseUp);
   }
 
-  // Update the tool based on the selected tool
+  // Function to update the tool
   $: updateTool = () => {
     drawingCtx.lineWidth = isEraser ? eraserWidth : penWidth;
     drawingCtx.strokeStyle = isEraser ? "#fff" : "#000";
@@ -226,15 +223,13 @@
         ") 0 20, auto";
   };
 
-  // Toggle eraser function
+  // Function to toggle between the eraser and the pen
   function toggleEraser() {
     isEraser = !isEraser;
     updateTool();
   }
 
-  let isDrawing = false;
-
-  // Get mouse position
+  // Function to get the mouse position
   function getMousePos(event) {
     const rect = drawingCanvas.getBoundingClientRect();
     return {
@@ -243,7 +238,7 @@
     };
   }
 
-  // Handle mouse events when the user is drawing towards down
+  // Function to handle the mouse down event
   function handleMouseDown(event) {
     const { x, y } = getMousePos(event);
     isDrawing = true;
@@ -251,7 +246,7 @@
     drawingCtx.moveTo(x, y);
   }
 
-  // Handle mouse events when the user is drawing towards up
+  // Function to handle the mouse move event
   function handleMouseMove(event) {
     if (!isDrawing) return;
     const { x, y } = getMousePos(event);
@@ -259,43 +254,16 @@
     drawingCtx.stroke();
   }
 
-  // Handle mouse events when the user is drawing towards up
+  // Function to handle the mouse up event
   function handleMouseUp() {
     isDrawing = false;
     drawingCtx.closePath();
   }
 
-  // Download the canvas as SVG
+  // Function to download the canvas
   const downloadCanvas = () => {
     const link = document.createElement("a");
-
-    // Create an SVG element
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("width", "320");
-    svg.setAttribute("height", "320");
-    svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-
-    // Create a rectangle to fill the background with white
-    const background = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "rect"
-    );
-    background.setAttribute("width", "100%");
-    background.setAttribute("height", "100%");
-    background.setAttribute("fill", "#ffffff");
-    svg.appendChild(background);
-
-    // Create an image element to hold the canvas content
-    const image = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "image"
-    );
-    image.setAttribute("width", "320");
-    image.setAttribute("height", "320");
-    image.setAttribute("href", drawingCanvas.toDataURL("image/png"));
-    svg.appendChild(image);
-
-    // Serialize the SVG to a string
+    const svg = createSvgFromCanvas(drawingCanvas);
     const serializer = new XMLSerializer();
     const svgString = serializer.serializeToString(svg);
     const svgBlob = new Blob([svgString], {
@@ -303,13 +271,12 @@
     });
     const svgUrl = URL.createObjectURL(svgBlob);
 
-    // Set up the download link
     link.download = `${char}.svg`;
     link.href = svgUrl;
     link.click();
   };
 
-  // Add new font function
+  // Function to add a font
   function addFont() {
     fonts.update((current) => [
       ...current,
@@ -317,12 +284,12 @@
     ]);
   }
 
-  // Delete font function
+  // Function to delete a font
   function deleteFont(id) {
     fonts.update((current) => current.filter((font) => font.id !== id));
   }
 
-  // Edit font name function
+  // Function to edit a font
   function editFont(id, newName) {
     fonts.update((current) =>
       current.map((font) =>
@@ -331,7 +298,7 @@
     );
   }
 
-  // Toggle editing state
+  // Function to toggle the edit font
   function toggleEditFont(id) {
     fonts.update((current) =>
       current.map((font) =>
@@ -339,6 +306,7 @@
       )
     );
   }
+  
 </script>
 
 <section
@@ -349,18 +317,18 @@
     <!-- Fonts Collection -->
     <div class="flex gap-4 pb-4">
       <p class="dark:text-white text-gray-900 text-xl">Fonts Collection</p>
-
       <button on:click={addFont}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           height="20"
           width="20"
           viewBox="0 0 512 512"
-          ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
+        >
+          <path
             fill="#63E6BE"
             d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344V280H168c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H280v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-          /></svg
-        >
+          />
+        </svg>
       </button>
       <button on:click={handleDownload}>
         <svg
@@ -368,11 +336,12 @@
           height="20"
           width="20"
           viewBox="0 0 512 512"
-          ><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
+        >
+          <path
             fill="#63E6BE"
             d="M256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM127 281c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l71 71L232 136c0-13.3 10.7-24 24-24s24 10.7 24 24l0 182.1 71-71c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9L273 393c-9.4 9.4-24.6 9.4-33.9 0L127 281z"
-          /></svg
-        >
+          />
+        </svg>
       </button>
     </div>
 
@@ -420,17 +389,24 @@
 
     <!-- Keyboard -->
     <div class="m-4">
-        <ul class="flex flex-wrap justify-center items-center gap-2">
-          {#each letters as letter}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <li
-              class="flex justify-center items-center p-2 bg-gray-200 rounded shadow w-10 h-10"
-              on:click={() => updatePreview(letter)}
-            >
+      <ul class="flex flex-wrap justify-center items-center gap-2">
+        {#each letters as letter}
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <li
+            class="flex justify-center items-center p-2 bg-gray-200 rounded shadow w-10 h-10"
+            on:click={() => updatePreview(letter)}
+          >
+            {#if $handwriting[letter]}
+              <img
+                src="data:image/svg+xml;base64,{btoa($handwriting[letter])}"
+                alt={letter}
+              />
+            {:else}
               {letter}
-            </li>
-          {/each}
-        </ul>
+            {/if}
+          </li>
+        {/each}
+      </ul>
     </div>
 
     <!-- Preview -->
@@ -603,7 +579,8 @@
           />
         </svg>
       </button>
-      <button class="text-white" on:click={handleCreateFont}>Create Font</button>
+      <button class="text-white" on:click={handleCreateFont}>Create Font</button
+      >
     </div>
   </div>
 </section>
