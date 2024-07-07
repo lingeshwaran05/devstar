@@ -393,13 +393,14 @@
         {#each letters as letter}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <li
-            class="flex justify-center items-center p-2 bg-gray-200 rounded shadow w-10 h-10"
+            class="flex justify-center items-center p-2 bg-gray-200 rounded shadow w-12 h-12"
             on:click={() => updatePreview(letter)}
           >
             {#if $handwriting[letter]}
               <img
                 src="data:image/svg+xml;base64,{btoa($handwriting[letter])}"
                 alt={letter}
+                style="width: 30px; height: 30px;"
               />
             {:else}
               {letter}
