@@ -80,8 +80,8 @@
         <div
           class="badge badge-outline flex justify-betweenflex justify-between"
         >
-          <h1 class="text-2xl mb-4">{paste.title}</h1>
-          {formatExpirationTime(paste.expirationTimestamp)}
+          <h1 class="border rounded-lg p-2 text-white text-2xl mb-4">{paste.title}</h1>
+         
         </div>
 
         <HighlightAuto {code} />
