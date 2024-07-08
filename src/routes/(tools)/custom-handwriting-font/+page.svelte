@@ -148,8 +148,24 @@
 
   // Function to update the preview
   function updatePreview(letter) {
-    previewText += letter;
+    const svgString = localStorage.getItem(letter);
+    if (svgString) {
+      const blob = new Blob([svgString], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        drawingCtx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
+    } else {
+      drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+    }
   }
+  
 
   // Function to handle key press
   function handleKeyPress(event) {
