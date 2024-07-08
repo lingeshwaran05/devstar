@@ -18,7 +18,10 @@
   import "prismjs/components/prism-javascript";
   import "prismjs/components/prism-css";
   import "prismjs/components/prism-markup";
+
+
   import { Dropdown, DropdownItem } from "flowbite-svelte";
+  import { javascript } from "svelte-highlight/languages";
 
   let selectedLanguage = "markup";
   function formatExpirationTime(expirationTimestamp: number | null): string {
@@ -95,7 +98,7 @@
   class="min-h-screen bg-gray-900 text-white flex items-center justify-center"
 >
   <div class="max-w-4xl w-full">
-    <h1 class="text-4xl font-bold mb-8">Pastebin</h1>
+  
 
     <div class="bg-gray-800 rounded-lg shadow-lg p-8 mb-8">
       <h2 class="text-2xl font-bold mb-4">Create a New Paste</h2>
@@ -113,9 +116,13 @@
           <div class="text-black p-4">
         
           <select class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 m" id="language-select" bind:value={selectedLanguage} on:change={handleLanguageChange}>
-              <option value="javascript">JavaScript</option>
+              
+            <option value="plaintext">Plain Text</option>
+            <!-- <option value="javascript">JavaScript</option> -->
               <option value="css">CSS</option>
               <option value="markup">HTML</option>
+              <option value="javascript">javascript</option>
+             
             </select>
           </div>
         </div>
@@ -143,6 +150,7 @@
             class="bg-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           ></textarea>
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
           <div
             id="code-block"
             class="bg-gray-700 text-white rounded-md px-4 py-2 w-full"

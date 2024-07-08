@@ -5,30 +5,6 @@ import { insertPaste, initializeDatabase, getAllPastes } from "$lib/dataStore";
 
 await initializeDatabase();
 
-// export const actions = {
-//   createPaste: async ({ request }) => {
-//     const formData = await request.formData();
-//     let text = formData.get("text");
-//     const title = formData.get("title");
-//     const paste_expiration = formData.get("paste_expiration");
-
-//     try {
-//       const expirationTimestamp = paste_expiration === 'never' ? null : Date.now() + parseExpirationTime(paste_expiration);
-//       const dataToBeInserted = {
-//         id: uniqueId(),
-//         text,
-//         title,
-//         paste_expiration: expirationTimestamp,
-//       };
-
-//       await insertPaste(dataToBeInserted);
-//       return { success: true };
-//     } catch (err) {
-//       console.error("Error creating paste:", err);
-//       throw error(500, "An error occurred while creating the paste. Please try again later.");
-//     }
-//   },
-// };
 
 export const actions = {
   createPaste: async ({ request }) => {

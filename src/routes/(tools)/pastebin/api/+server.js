@@ -15,69 +15,9 @@ const secretKey =
   );
 const iv = "7dbfb688da37f2ed35ee7f5f194a8ff8".slice(0, 16);
 
-//this set interval was messing up with this function
-// setInterval(deleteExpiredPastes, 60 * 1000); // Check for expired pastes every minute
-
-//this post function is not needed
-// export async function POST({ request }) {
-//   const formData = await request.formData();
-//   const text = formData.get("text");
-//   const title = formData.get("title");
-//   const password = formData.get("password");
-//   const pasteExpiration = formData.get("paste_expiration");
-//   const encrypted = formData.get("encrypt") ? true : false;
-
-//   let expirationInSeconds;
-//   try {
-//     expirationInSeconds = parseExpirationTime(pasteExpiration);
-//     console.log(
-//       "uploading paste with expirationInSeconds: ",
-//       expirationInSeconds
-//     );
-//   } catch (error) {
-//     return new Response(JSON.stringify({ error: error.message }), {
-//       status: 400,
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     });
-//   }
-
-//   const id = uuidv4();
-//   const expirationTimestamp = Date.now() + expirationInSeconds;
-
-//   let encryptedText = text;
-//   if (encrypted) {
-//     const cipher = crypto.createCipheriv(
-//       "aes-256-cbc",
-//       Buffer.from(secretKey),
-//       Buffer.from(iv)
-//     );
-//     let encryptedData = cipher.update(text, "utf8", "hex");
-//     encryptedData += cipher.final("hex");
-//     encryptedText = encryptedData;
-//   }
-
-//   await insertPaste({
-//     id,
-//     text: encryptedText,
-//     title,
-//     password,
-//     paste_expiration: expirationTimestamp,
-//     encrypted,
-//   });
-
-//   return new Response(JSON.stringify({ id }), {
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//   });
-// }
-//
 
 export async function GET({ url }) {
-  // console.log("GET request received", params);
-  // await deleteExpiredPastes();
+ 
   const uid = url.searchParams.get("id");
 
   const paste = await getPaste(uid);
@@ -85,20 +25,12 @@ export async function GET({ url }) {
     throw error(404, "Paste not found or expired");
   }
 
-  // let text = paste.text;
-  // if (paste.encrypted) {
-  //   text = decryptData(paste.text);
-  // }
-  //no need to decrypt or encrypt
+ 
 
   return new Response(
     JSON.stringify({
       id: paste,
-      // title: paste.title,
-      // text,
-      // password: paste.password,
-      // encrypted: paste.encrypted,
-      // expirationTimestamp: paste.paste_expiration,
+     
     }),
     {
       headers: {
