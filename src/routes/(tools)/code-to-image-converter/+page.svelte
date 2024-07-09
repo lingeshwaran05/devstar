@@ -126,13 +126,13 @@
 </style>
 
 <div class="container mx-auto p-6" class:dark-mode={darkMode}>
-    <h1 class="text-2xl font-bold mb-4">Code to Image Converter</h1>
+    <h1 class="text-2xl font-bold mb-4 text-white">Code to Image Converter</h1>
 
     <textarea class="w-full p-2 mb-4 border border-gray-300 rounded-lg resize-none font-mono"
               bind:value={$codeStore} on:input={handleCodeInput} rows="10"></textarea>
 
     <div class="mb-4">
-        <h2 class="font-medium mb-2">Select Syntax Highlighting Language</h2>
+        <h2 class="font-medium mb-2 text-white">Select Syntax Highlighting Language</h2>
         <select class="border border-gray-300 rounded-lg p-2 bg-white"
                 bind:value={currentStyle} on:change={handleStyleChange}>
             <option value="javascript">JavaScript</option>
@@ -154,13 +154,13 @@
     </div>
 
     <div class="mb-4">
-        <h2 class="font-medium mb-2">Select Font Size</h2>
+        <h2 class="font-medium mb-2 text-white">Select Font Size</h2>
         <input type="number" class="border border-gray-300 rounded-lg p-2 bg-white"
                min="10" max="30" value="16" on:input={handleFontSizeChange}>
     </div>
 
     <div class="mb-4">
-        <h2 class="font-medium mb-2">Select Theme</h2>
+        <h2 class="font-medium mb-2 text-white">Select Theme</h2>
         <select class="border border-gray-300 rounded-lg p-2 bg-white"
                 bind:value={theme} on:change={handleThemeChange}>
             {#each themes as themeOption}
@@ -170,7 +170,7 @@
     </div>
 
     <div class="mb-4">
-        <h2 class="font-medium mb-2">Toggle Dark Mode</h2>
+        <h2 class="font-medium mb-2 text-white">Toggle Dark Mode</h2>
         <button class="border border-gray-300 rounded-lg p-2 bg-white"
                 on:click={toggleDarkMode}>
             {darkMode ? 'Disable Dark Mode' : 'Enable Dark Mode'}
@@ -178,7 +178,7 @@
     </div>
 
     <div class="mb-4">
-        <h2 class="font-medium mb-2">Preview</h2>
+        <h2 class="font-medium mb-2 text-white">Preview</h2>
         <div class="code-container" id="codePreviewContainer">
             <pre id="codePreview" class="p-4 rounded-lg {darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-black'}" style="--font-size: {fontSize};"><code>{@html codePreview}</code></pre>
         </div>
