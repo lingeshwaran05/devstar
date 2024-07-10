@@ -1,23 +1,27 @@
 {
-    "name": "",
-    "description":"",
+    "name": "Custom Icon Font Generator",
+    "description":"This tool convert your image into downloadable and importable styling like css/html format",
     "contributors": [{
-        "name": "",
-        "githubId": ""
+        "name": "Kaif Satopay",
+        "githubId": "TYpeKAIF"
     }, {
-        "name": "",
-        "githubId": ""
+        "name": "Aryan Gupta",
+        "githubId": "Aryan-R-Gupta"
     },
     {
-        "name": "",
-        "githubId": ""
+        "name": "Sambhav Bhansali",
+        "githubId": "Sambhavvv"
     },
     {
-        "name": "",
-        "githubId": ""
+        "name": "Simran Singh",
+        "githubId": "simrann121"
     },
     {
-        "name": "",
-        "githubId": ""
+        "name": "Yadhukrishna Nair",
+        "githubId": "YADHU0014"
     }]
 }
+
+
+
+
