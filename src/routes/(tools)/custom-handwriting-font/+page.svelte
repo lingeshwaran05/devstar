@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
+  import ImageTracer from "imagetracerjs";
   import { createFontFromSVGs } from "$lib/fontUtils";
 
   let letters = Object.keys(generateAlphabet());
@@ -165,7 +166,6 @@
       drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
     }
   }
-  
 
   // Function to handle key press
   function handleKeyPress(event) {
@@ -322,7 +322,77 @@
       )
     );
   }
-  
+
+  function downloadImage() {
+    // Create a temporary anchor element
+    const link = document.createElement("a");
+
+    // Set the href to the canvas data URL
+    link.href = drawingCanvas.toDataURL("image/png");
+
+    // Set the download attribute with a filename
+    link.download = "drawing.png";
+
+    // Append the link to the body (required for Firefox)
+    document.body.appendChild(link);
+
+    // Programmatically click the link to trigger the download
+    link.click();
+
+    // Remove the link from the body
+    document.body.removeChild(link);
+  }
+  function canvasToSVG() {
+    // Get the canvas data as an image data URL
+    const imageData = drawingCanvas.toDataURL("image/png");
+
+    // Options for the tracing
+    const options = {
+      ltres: 0.1,
+      qtres: 1,
+      pathomit: 8,
+      rightangleenhance: true,
+      colorsampling: 2,
+      numberofcolors: 16,
+      mincolorratio: 0,
+      colorquantcycles: 3,
+    };
+
+    // Convert to SVG
+    ImageTracer.imageToSVG(
+      imageData,
+      function (svgstr) {
+        // svgstr now contains the SVG string
+        // You can download it or display it
+        downloadSVG(svgstr);
+      },
+      options
+    );
+  }
+  function downloadSVG(svgString) {
+    // Create a Blob with the SVG string
+    const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+
+    // Create a temporary URL for the Blob
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary anchor element
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "drawing.svg";
+
+    // Append the link to the body (required for Firefox)
+    document.body.appendChild(link);
+
+    // Programmatically click the link to trigger the download
+    link.click();
+
+    // Remove the link from the body
+    document.body.removeChild(link);
+
+    // Revoke the temporary URL
+    URL.revokeObjectURL(url);
+  }
 </script>
 
 <section
@@ -598,6 +668,8 @@
       </button>
       <button class="text-white" on:click={handleCreateFont}>Create Font</button
       >
+      <button on:click={downloadImage}>Download as PNG</button>
+      <button on:click={canvasToSVG}>Download as SVG (2)</button>
     </div>
   </div>
 </section>
