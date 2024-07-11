@@ -567,29 +567,29 @@
         ]
     },
     "whiteboard": {
-        "name": "",
+        "name": "WhiteBoard",
         "link": "/whiteboard",
         "description": "",
         "contributors": [
             {
-                "name": "",
-                "githubId": ""
+                "name": "Aswani Bolisetti",
+                "githubId": "AswaniBolisetti"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Siddharth Samant",
+                "githubId": "Siddharth-smnt"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Anurag Nalkar",
+                "githubId": "Garuna414"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Pranav Mahajan",
+                "githubId": "PranavGitHubAcc"
             },
             {
-                "name": "",
-                "githubId": ""
+                "name": "Pranavi Singh",
+                "githubId": "pranavisingh8"
             }
         ]
     }
