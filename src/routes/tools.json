@@ -81,13 +81,13 @@
         ]
     },
     "code-to-image-converter": {
-        "name": "Code To Image Converter",
+        "name": "code-to-image-converter",
         "link": "/code-to-image-converter",
-        "description": "A code-to-image converter is a tool that transforms programming code into visual representations. This task involves interpreting code syntax and structure to create images that visually depict the logic and functionality of the code. ",
+        "description": "Code-to-Image Converter transforms your code into a customizable image with options like font size, dark mode, and syntax highlighting. Preview, edit, and download your code as an image in real-time.",
         "contributors": [
             {
-                "name": "Atharv Amol Dhupkar",
-                "githubId": "https://github.com/atharv-dhupkar22"
+                "name": "Shree Jaybhay",
+                "githubId": "shreejaybhay"
             },
             {
                 "name": "",
