@@ -86,25 +86,13 @@
         "description": "A code-to-image converter is a tool that transforms programming code into visual representations. This task involves interpreting code syntax and structure to create images that visually depict the logic and functionality of the code.",
         "contributors": [
             {
+                "name": "Divesh Maurya",
+                "githubId": "https://github.com/Divesh9"
+            },
+            {
                 "name": "Atharv Amol Dhupkar",
                 "githubId": "atharv-dhupkar22"
             },
-            {
-                "name": "",
-                "githubId": ""
-            },
-            {
-                "name": "",
-                "githubId": ""
-            },
-            {
-                "name": "",
-                "githubId": ""
-            },
-            {
-                "name": "",
-                "githubId": ""
-            }
         ]
     },
     "css-animator": {
@@ -277,6 +265,33 @@
             {
                 "name": "Pratik Vinayak More",
                 "githubId": "Comder101"
+            }
+        ]
+    },
+    "liveQ&A": {
+        "name": "",
+        "link": "/liveQ&A",
+        "description": "",
+        "contributors": [
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
             }
         ]
     },
@@ -478,6 +493,33 @@
             {
                 "name": "Hannan Satopay",
                 "githubId": "hannansatopay"
+            }
+        ]
+    },
+    "reverse-string": {
+        "name": "",
+        "link": "/reverse-string",
+        "description": "",
+        "contributors": [
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
+            },
+            {
+                "name": "",
+                "githubId": ""
             }
         ]
     },
