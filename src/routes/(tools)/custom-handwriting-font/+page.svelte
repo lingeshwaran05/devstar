@@ -115,6 +115,27 @@
 
   // Function to create SVG from canvas
   function createSvgFromCanvas(canvas) {
+    const filteredCanvas = document.createElement("canvas");
+    const filteredCtx = filteredCanvas.getContext("2d");
+    filteredCanvas.width = canvas.width;
+    filteredCanvas.height = canvas.height;
+
+    filteredCtx.drawImage(canvas, 0, 0);
+
+    const imageData = filteredCtx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      if (!(data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0)) {
+        data[i + 3] = 0; // Set alpha to 0 to make it transparent
+      }
+    }
+    filteredCtx.putImageData(imageData, 0, 0);
+
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("width", canvas.width);
     svg.setAttribute("height", canvas.height);
@@ -122,7 +143,7 @@
       "http://www.w3.org/2000/svg",
       "image"
     );
-    image.setAttribute("href", canvas.toDataURL("image/png"));
+    image.setAttribute("href", filteredCanvas.toDataURL("image/png"));
     svg.appendChild(image);
     return svg;
   }
@@ -324,7 +345,27 @@
   }
 
   function downloadImage() {
-    // Create a temporary anchor element
+    const filteredCanvas = document.createElement("canvas");
+    const filteredCtx = filteredCanvas.getContext("2d");
+    filteredCanvas.width = drawingCanvas.width;
+    filteredCanvas.height = drawingCanvas.height;
+
+    filteredCtx.drawImage(drawingCanvas, 0, 0);
+
+    const imageData = filteredCtx.getImageData(
+      0,
+      0,
+      drawingCanvas.width,
+      drawingCanvas.height
+    );
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      if (!(data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0)) {
+        data[i + 3] = 0; // Set alpha to 0 to make it transparent
+      }
+    }
+    filteredCtx.putImageData(imageData, 0, 0);
+
     const link = document.createElement("a");
 
     // Set the href to the canvas data URL
@@ -342,11 +383,31 @@
     // Remove the link from the body
     document.body.removeChild(link);
   }
-  function canvasToSVG() {
-    // Get the canvas data as an image data URL
-    const imageData = drawingCanvas.toDataURL("image/png");
 
-    // Options for the tracing
+  function canvasToSVG() {
+    const filteredCanvas = document.createElement("canvas");
+    const filteredCtx = filteredCanvas.getContext("2d");
+    filteredCanvas.width = drawingCanvas.width;
+    filteredCanvas.height = drawingCanvas.height;
+
+    filteredCtx.drawImage(drawingCanvas, 0, 0);
+
+    const imageData = filteredCtx.getImageData(
+      0,
+      0,
+      drawingCanvas.width,
+      drawingCanvas.height
+    );
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      if (!(data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0)) {
+        data[i + 3] = 0; // Set alpha to 0 to make it transparent
+      }
+    }
+    filteredCtx.putImageData(imageData, 0, 0);
+
+    const imageDataUrl = filteredCanvas.toDataURL("image/png");
+
     const options = {
       ltres: 0.1,
       qtres: 1,
@@ -358,17 +419,15 @@
       colorquantcycles: 3,
     };
 
-    // Convert to SVG
     ImageTracer.imageToSVG(
-      imageData,
+      imageDataUrl,
       function (svgstr) {
-        // svgstr now contains the SVG string
-        // You can download it or display it
         downloadSVG(svgstr);
       },
       options
     );
   }
+
   function downloadSVG(svgString) {
     // Create a Blob with the SVG string
     const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
