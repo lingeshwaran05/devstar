@@ -17,93 +17,63 @@
   let eraserWidth = 10;
   let fonts = writable([]); // Store for dynamic fonts
 
-  // createFontFromSVGs is a function that takes the SVGs from the handwriting store and creates a font from them
   function handleCreateFont() {
     createFontFromSVGs();
   }
 
-  // Function to download the handwriting template
   const handleDownload = () => {
-  // Retrieve saved letters from localStorage
-  const savedLetters = JSON.parse(localStorage.getItem("savedLetters")) || [];
+    const a4Width = 595;
+    const a4Height = 842;
+    const canvas = document.createElement("canvas");
+    canvas.width = a4Width;
+    canvas.height = a4Height;
+    const ctx = canvas.getContext("2d");
 
-  // Create an object to hold all the data to be downloaded
-  const downloadData = {
-    savedLetters: [],
-    handwriting: {}
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#000000";
+    ctx.font = "14px Arial";
+    ctx.textAlign = "center";
+
+    const headingOffsetY = 5;
+    const boxWidth = 60;
+    const boxHeight = 80;
+    const marginY = 20;
+    const marginX = 10;
+    const startX = 20;
+    const startY = 20;
+
+    letters.forEach((letter, index) => {
+      const x = startX + (index % 8) * (boxWidth + marginX);
+      const y = startY + Math.floor(index / 8) * (boxHeight + marginY);
+      ctx.fillText(letter, x + boxWidth / 2, y - headingOffsetY);
+      ctx.strokeRect(x, y, boxWidth, boxHeight);
+    });
+
+    const dataUrl = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "handwriting_template.png";
+    link.click();
   };
 
-  savedLetters.forEach((letter) => {
-    const image = localStorage.getItem(letter);
-    downloadData.savedLetters.push({ letter, image });
-    downloadData.handwriting[letter] = image;
-  });
+  onMount(() => {
+    drawingCtx = drawingCanvas.getContext("2d");
+    startDrawing();
+    const saved = JSON.parse(localStorage.getItem("savedLetters")) || [];
+    savedLetters.set(saved);
 
-  // Create an SVG element
-  const svgNS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(svgNS, "svg");
-  svg.setAttribute("width", "800"); // Adjust as needed
-  svg.setAttribute("height", `${savedLetters.length * 100}`); // Adjust as needed
-
-  // Embed each image within the SVG
-  savedLetters.forEach((letter, index) => {
-    const imageSrc = localStorage.getItem(letter);
-    const img = document.createElementNS(svgNS, "image");
-    img.setAttributeNS(null, "x", "0");
-    img.setAttributeNS(null, "y", `${index * 100}`);
-    img.setAttributeNS(null, "width", "800"); // Adjust as needed
-    img.setAttributeNS(null, "height", "100"); // Adjust as needed
-    img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', imageSrc);
-    svg.appendChild(img);
-  });
-
-  // Serialize the SVG content to a string
-  const svgData = new XMLSerializer().serializeToString(svg);
-
-  // Create a Blob from the SVG data
-  const blob = new Blob([svgData], { type: "image/svg+xml" });
-
-  // Create a link element
-  const link = document.createElement("a");
-
-  // Create a URL for the Blob and set it as the href of the link
-  link.href = URL.createObjectURL(blob);
-
-  // Set the download attribute of the link to specify the filename
-  link.download = "handwriting_images.svg";
-
-  // Append the link to the body
-  document.body.appendChild(link);
-
-  // Programmatically click the link to trigger the download
-  link.click();
-
-  // Remove the link from the document
-  document.body.removeChild(link);
-};
-
-// Function to update the tool, keyboard and canvas
-onMount(() => {
-  drawingCtx = drawingCanvas.getContext("2d");
-  startDrawing();
-  const saved = JSON.parse(localStorage.getItem("savedLetters")) || [];
-  savedLetters.set(saved);
-
-  saved.forEach((letter) => {
-    const image = localStorage.getItem(letter);
-    handwriting.update((h) => {
-      h[letter] = image;
-      return h;
+    saved.forEach((letter) => {
+      const image = localStorage.getItem(letter);
+      handwriting.update((h) => {
+        h[letter] = image;
+        return h;
+      });
     });
+    updateCanvas(char);
+    window.addEventListener("keydown", handleKeyPress);
   });
-  updateCanvas(char);
-  window.addEventListener("keydown", handleKeyPress);
-});
 
-
-
-
-  // Function to generate the alphabet, letters and numbers
   function generateAlphabet() {
     let result = {};
     for (let i = 65; i <= 90; i++) {
@@ -118,12 +88,9 @@ onMount(() => {
     return result;
   }
 
-  // Function to save the handwriting
   const saveHandwriting = async () => {
-    const svg = createSvgFromCanvas(drawingCanvas);
+    const svgString = await canvasToSVG();
     const letter = letters[currentIndex];
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(svg);
     localStorage.setItem(letter, svgString);
     savedLetters.update((saved) => {
       if (!saved.includes(letter)) {
@@ -139,42 +106,6 @@ onMount(() => {
     });
   };
 
-  // Function to create SVG from canvas
-  function createSvgFromCanvas(canvas) {
-    const filteredCanvas = document.createElement("canvas");
-    const filteredCtx = filteredCanvas.getContext("2d");
-    filteredCanvas.width = canvas.width;
-    filteredCanvas.height = canvas.height;
-
-    filteredCtx.drawImage(canvas, 0, 0);
-
-    const imageData = filteredCtx.getImageData(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-    const data = imageData.data;
-    for (let i = 0; i < data.length; i += 4) {
-      if (!(data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0)) {
-        data[i + 3] = 0; // Set alpha to 0 to make it transparent
-      }
-    }
-    filteredCtx.putImageData(imageData, 0, 0);
-
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("width", canvas.width);
-    svg.setAttribute("height", canvas.height);
-    const image = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "image"
-    );
-    image.setAttribute("href", filteredCanvas.toDataURL("image/png"));
-    svg.appendChild(image);
-    return svg;
-  }
-
-  // Function to delete the letter
   function deleteLetter(letter) {
     savedLetters.update((saved) => {
       const index = saved.indexOf(letter);
@@ -194,7 +125,6 @@ onMount(() => {
     }
   }
 
-  // Function to update the preview
   function updatePreview(letter) {
     const svgString = localStorage.getItem(letter);
     if (svgString) {
@@ -214,21 +144,18 @@ onMount(() => {
     }
   }
 
-  // Function to move to the next letter
   function nextLetter() {
     currentIndex = (currentIndex + 1) % letters.length;
     char = letters[currentIndex];
     updateCanvas(char);
   }
 
-  // Function to move to the previous letter
   function prevLetter() {
     currentIndex = (currentIndex - 1 + letters.length) % letters.length;
     char = letters[currentIndex];
     updateCanvas(char);
   }
 
-  // Function to update the canvas
   function updateCanvas(letter) {
     const svgString = localStorage.getItem(letter);
     if (svgString) {
@@ -248,7 +175,6 @@ onMount(() => {
     }
   }
 
-  // Function to start drawing
   function startDrawing() {
     updateTool();
     drawingCanvas.addEventListener("mousedown", handleMouseDown);
@@ -257,7 +183,6 @@ onMount(() => {
     drawingCanvas.addEventListener("mouseleave", handleMouseUp);
   }
 
-  // Function to update the tool
   $: updateTool = () => {
     drawingCtx.lineWidth = isEraser ? eraserWidth : penWidth;
     drawingCtx.strokeStyle = isEraser ? "#fff" : "#000";
@@ -274,13 +199,11 @@ onMount(() => {
         ") 0 20, auto";
   };
 
-  // Function to toggle between the eraser and the pen
   function toggleEraser() {
     isEraser = !isEraser;
     updateTool();
   }
 
-  // Function to get the mouse position
   function getMousePos(event) {
     const rect = drawingCanvas.getBoundingClientRect();
     return {
@@ -289,7 +212,6 @@ onMount(() => {
     };
   }
 
-  // Function to handle the mouse down event
   function handleMouseDown(event) {
     const { x, y } = getMousePos(event);
     isDrawing = true;
@@ -297,7 +219,6 @@ onMount(() => {
     drawingCtx.moveTo(x, y);
   }
 
-  // Function to handle the mouse move event
   function handleMouseMove(event) {
     if (!isDrawing) return;
     const { x, y } = getMousePos(event);
@@ -305,13 +226,11 @@ onMount(() => {
     drawingCtx.stroke();
   }
 
-  // Function to handle the mouse up event
   function handleMouseUp() {
     isDrawing = false;
     drawingCtx.closePath();
   }
 
-  // Function to add a font
   function addFont() {
     fonts.update((current) => [
       ...current,
@@ -319,12 +238,10 @@ onMount(() => {
     ]);
   }
 
-  // Function to delete a font
   function deleteFont(id) {
     fonts.update((current) => current.filter((font) => font.id !== id));
   }
 
-  // Function to edit a font
   function editFont(id, newName) {
     fonts.update((current) =>
       current.map((font) =>
@@ -333,7 +250,6 @@ onMount(() => {
     );
   }
 
-  // Function to toggle the edit font
   function toggleEditFont(id) {
     fonts.update((current) =>
       current.map((font) =>
@@ -342,72 +258,69 @@ onMount(() => {
     );
   }
 
-  function canvasToSVG() {
-    const filteredCanvas = document.createElement("canvas");
-    const filteredCtx = filteredCanvas.getContext("2d");
-    filteredCanvas.width = drawingCanvas.width;
-    filteredCanvas.height = drawingCanvas.height;
+  async function canvasToSVG() {
+    return new Promise((resolve) => {
+      const filteredCanvas = document.createElement("canvas");
+      const filteredCtx = filteredCanvas.getContext("2d");
+      filteredCanvas.width = drawingCanvas.width;
+      filteredCanvas.height = drawingCanvas.height;
 
-    filteredCtx.drawImage(drawingCanvas, 0, 0);
+      filteredCtx.drawImage(drawingCanvas, 0, 0);
 
-    const imageData = filteredCtx.getImageData(
-      0,
-      0,
-      drawingCanvas.width,
-      drawingCanvas.height
-    );
-    const data = imageData.data;
-    for (let i = 0; i < data.length; i += 4) {
-      if (!(data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0)) {
-        data[i + 3] = 0; // Set alpha to 0 to make it transparent
+      const imageData = filteredCtx.getImageData(
+        0,
+        0,
+        drawingCanvas.width,
+        drawingCanvas.height
+      );
+      const data = imageData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        if (!(data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0)) {
+          data[i + 3] = 0; // Set alpha to 0 to make it transparent
+        }
       }
-    }
-    filteredCtx.putImageData(imageData, 0, 0);
+      filteredCtx.putImageData(imageData, 0, 0);
 
-    const imageDataUrl = filteredCanvas.toDataURL("image/png");
+      const imageDataUrl = filteredCanvas.toDataURL("image/png");
 
-    const options = {
-      ltres: 0.1,
-      qtres: 1,
-      pathomit: 8,
-      rightangleenhance: true,
-      colorsampling: 2,
-      numberofcolors: 16,
-      mincolorratio: 0,
-      colorquantcycles: 3,
-    };
+      const options = {
+        ltres: 0.1,
+        qtres: 1,
+        pathomit: 8,
+        rightangleenhance: true,
+        colorsampling: 2,
+        numberofcolors: 16,
+        mincolorratio: 0,
+        colorquantcycles: 3,
+      };
 
-    ImageTracer.imageToSVG(
-      imageDataUrl,
-      function (svgstr) {
-        downloadSVG(svgstr);
-      },
-      options
-    );
+      ImageTracer.imageToSVG(
+        imageDataUrl,
+        function (svgstr) {
+          resolve(svgstr);
+        },
+        options
+      );
+    });
+  }
+
+  async function handleCanvasToSVG() {
+    const svgString = await canvasToSVG();
+    downloadSVG(svgString);
   }
 
   function downloadSVG(svgString) {
-    // Create a Blob with the SVG string
     const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-
-    // Create a temporary URL for the Blob
     const url = URL.createObjectURL(blob);
 
-    // Create a temporary anchor element
     const link = document.createElement("a");
     link.href = url;
     link.download = "drawing.svg";
 
-    // Append the link to the body (required for Firefox)
     document.body.appendChild(link);
-
-    // Programmatically click the link to trigger the download
     link.click();
-
-    // Remove the link from the body
     document.body.removeChild(link);
 
-    // Revoke the temporary URL
     URL.revokeObjectURL(url);
   }
 </script>
@@ -661,7 +574,7 @@ onMount(() => {
       </button>
 
       <!-- download svg font button -->
-      <button class="cursor-pointer" on:click={canvasToSVG}>
+      <button class="cursor-pointer" on:click={handleCanvasToSVG}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           height="34"
