@@ -61,6 +61,9 @@
       h[letter] = svgString;
       return h;
     });
+
+    // Update the preview to reflect the saved drawing
+    updatePreview(letter);
   };
 
   function deleteLetter(letter) {
@@ -84,6 +87,8 @@
 
   function updatePreview(letter) {
     char = letter; // Update the current character
+    currentIndex = letters.indexOf(letter); // Update the current index to match the clicked letter
+
     const svgString = localStorage.getItem(letter);
     if (svgString) {
       const blob = new Blob([svgString], {
