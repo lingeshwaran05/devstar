@@ -61,9 +61,9 @@
       h[letter] = svgString;
       return h;
     });
-
-    // Update the preview to reflect the saved drawing
-    updatePreview(letter);
+    currentIndex = (currentIndex + 1) % letters.length;
+    char = letters[currentIndex];
+    updateCanvas();
   };
 
   function deleteLetter(letter) {
