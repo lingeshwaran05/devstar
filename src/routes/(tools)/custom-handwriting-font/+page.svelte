@@ -29,7 +29,6 @@
       });
     });
     updateCanvas(char);
-    window.addEventListener("keydown", handleKeyPress);
   });
 
   function generateAlphabet() {
@@ -84,6 +83,7 @@
   }
 
   function updatePreview(letter) {
+    char = letter; // Update the current character
     const svgString = localStorage.getItem(letter);
     if (svgString) {
       const blob = new Blob([svgString], {
