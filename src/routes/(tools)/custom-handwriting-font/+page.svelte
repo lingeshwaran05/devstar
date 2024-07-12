@@ -7,7 +7,6 @@
   let letters = Object.keys(generateAlphabet());
   let currentIndex = 0;
   let char = letters[currentIndex];
-  let previewText = "";
   let drawingCanvas;
   let drawingCtx;
   let handwriting = writable(generateAlphabet());
@@ -188,18 +187,6 @@
     }
   }
 
-  // Function to handle key press
-  function handleKeyPress(event) {
-    const letter = event.key;
-    if (letters.includes(letter)) {
-      updatePreview(letter);
-    } else if (letter === " ") {
-      updatePreview(" ");
-    } else if (event.key === "Backspace") {
-      previewText = previewText.slice(0, -1);
-    }
-  }
-
   // Function to move to the next letter
   function nextLetter() {
     currentIndex = (currentIndex + 1) % letters.length;
@@ -297,22 +284,6 @@
     drawingCtx.closePath();
   }
 
-  // Function to download the canvas
-  const downloadCanvas = () => {
-    const link = document.createElement("a");
-    const svg = createSvgFromCanvas(drawingCanvas);
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(svg);
-    const svgBlob = new Blob([svgString], {
-      type: "image/svg+xml;charset=utf-8",
-    });
-    const svgUrl = URL.createObjectURL(svgBlob);
-
-    link.download = `${char}.svg`;
-    link.href = svgUrl;
-    link.click();
-  };
-
   // Function to add a font
   function addFont() {
     fonts.update((current) => [
@@ -342,46 +313,6 @@
         font.id === id ? { ...font, editing: !font.editing } : font
       )
     );
-  }
-
-  function downloadImage() {
-    const filteredCanvas = document.createElement("canvas");
-    const filteredCtx = filteredCanvas.getContext("2d");
-    filteredCanvas.width = drawingCanvas.width;
-    filteredCanvas.height = drawingCanvas.height;
-
-    filteredCtx.drawImage(drawingCanvas, 0, 0);
-
-    const imageData = filteredCtx.getImageData(
-      0,
-      0,
-      drawingCanvas.width,
-      drawingCanvas.height
-    );
-    const data = imageData.data;
-    for (let i = 0; i < data.length; i += 4) {
-      if (!(data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0)) {
-        data[i + 3] = 0; // Set alpha to 0 to make it transparent
-      }
-    }
-    filteredCtx.putImageData(imageData, 0, 0);
-
-    const link = document.createElement("a");
-
-    // Set the href to the canvas data URL
-    link.href = drawingCanvas.toDataURL("image/png");
-
-    // Set the download attribute with a filename
-    link.download = "drawing.png";
-
-    // Append the link to the body (required for Firefox)
-    document.body.appendChild(link);
-
-    // Programmatically click the link to trigger the download
-    link.click();
-
-    // Remove the link from the body
-    document.body.removeChild(link);
   }
 
   function canvasToSVG() {
@@ -554,17 +485,6 @@
         {/each}
       </ul>
     </div>
-
-    <!-- Preview -->
-    <div class="preview-text my-6 w-full bg-blue-50 rounded-lg">
-      <p class="p-4">
-        {#if previewText}
-          {previewText}
-        {:else}
-          Preview your font
-        {/if}
-      </p>
-    </div>
   </div>
 
   <!-- Canvas div starts here -->
@@ -639,8 +559,10 @@
       class="drawing-container w-80 h-80 mx-auto rounded-xl mb-4 border-4 border-gray-500"
     >
       <canvas
-        class="drawing-canvas w-full h-full bg-white rounded-lg relative"
+        class="drawing-canvas bg-white rounded-lg relative w-[312px] h-[312px]"
         bind:this={drawingCanvas}
+        width="312"
+        height="312"
       >
         Your browser does not support the HTML5 canvas tag.
       </canvas>
@@ -712,7 +634,7 @@
       </button>
 
       <!-- download svg font button -->
-      <button class="cursor-pointer" on:click={downloadCanvas}>
+      <button class="cursor-pointer" on:click={canvasToSVG}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           height="34"
@@ -725,10 +647,18 @@
           />
         </svg>
       </button>
-      <button class="text-white" on:click={handleCreateFont}>Create Font</button
+      <button class="text-white" on:click={handleCreateFont}
+        ><svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="34"
+          width="40"
+          viewBox="0 0 576 512"
+          ><path
+            fill="#00b4cc"
+            d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V428.7c-2.7 1.1-5.4 2-8.2 2.7l-60.1 15c-3 .7-6 1.2-9 1.4c-.9 .1-1.8 .2-2.7 .2H240c-6.1 0-11.6-3.4-14.3-8.8l-8.8-17.7c-1.7-3.4-5.1-5.5-8.8-5.5s-7.2 2.1-8.8 5.5l-8.8 17.7c-2.9 5.9-9.2 9.4-15.7 8.8s-12.1-5.1-13.9-11.3L144 381l-9.8 32.8c-6.1 20.3-24.8 34.2-46 34.2H80c-8.8 0-16-7.2-16-16s7.2-16 16-16h8.2c7.1 0 13.3-4.6 15.3-11.4l14.9-49.5c3.4-11.3 13.8-19.1 25.6-19.1s22.2 7.8 25.6 19.1l11.6 38.6c7.4-6.2 16.8-9.7 26.8-9.7c15.9 0 30.4 9 37.5 23.2l4.4 8.8h8.9c-3.1-8.8-3.7-18.4-1.4-27.8l15-60.1c2.8-11.3 8.6-21.5 16.8-29.7L384 203.6V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM549.8 139.7c-15.6-15.6-40.9-15.6-56.6 0l-29.4 29.4 71 71 29.4-29.4c15.6-15.6 15.6-40.9 0-56.6l-14.4-14.4zM311.9 321c-4.1 4.1-7 9.2-8.4 14.9l-15 60.1c-1.4 5.5 .2 11.2 4.2 15.2s9.7 5.6 15.2 4.2l60.1-15c5.6-1.4 10.8-4.3 14.9-8.4L512.1 262.7l-71-71L311.9 321z"
+          /></svg
+        ></button
       >
-      <button on:click={downloadImage}>Download as PNG</button>
-      <button on:click={canvasToSVG}>Download as SVG (2)</button>
     </div>
   </div>
 </section>
