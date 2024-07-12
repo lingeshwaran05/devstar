@@ -24,57 +24,84 @@
 
   // Function to download the handwriting template
   const handleDownload = () => {
-    const a4Width = 595;
-    const a4Height = 842;
-    const canvas = document.createElement("canvas");
-    canvas.width = a4Width;
-    canvas.height = a4Height;
-    const ctx = canvas.getContext("2d");
+  // Retrieve saved letters from localStorage
+  const savedLetters = JSON.parse(localStorage.getItem("savedLetters")) || [];
 
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#000000";
-    ctx.font = "14px Arial";
-    ctx.textAlign = "center";
-
-    const headingOffsetY = 5;
-    const boxWidth = 60;
-    const boxHeight = 80;
-    const marginY = 20;
-    const marginX = 10;
-    const startX = 20;
-    const startY = 20;
-
-    letters.forEach((letter, index) => {
-      const x = startX + (index % 8) * (boxWidth + marginX);
-      const y = startY + Math.floor(index / 8) * (boxHeight + marginY);
-      ctx.fillText(letter, x + boxWidth / 2, y - headingOffsetY);
-      ctx.strokeRect(x, y, boxWidth, boxHeight);
-    });
-
-    const dataUrl = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = "handwriting_template.png";
-    link.click();
+  // Create an object to hold all the data to be downloaded
+  const downloadData = {
+    savedLetters: [],
+    handwriting: {}
   };
 
-  // Function to update the tool, keyboard and canvas
-  onMount(() => {
-    drawingCtx = drawingCanvas.getContext("2d");
-    startDrawing();
-    const saved = JSON.parse(localStorage.getItem("savedLetters")) || [];
-    savedLetters.set(saved);
-    saved.forEach((letter) => {
-      const image = localStorage.getItem(letter);
-      handwriting.update((h) => {
-        h[letter] = image;
-        return h;
-      });
-    });
-    updateCanvas(char);
-    window.addEventListener("keydown", handleKeyPress);
+  savedLetters.forEach((letter) => {
+    const image = localStorage.getItem(letter);
+    downloadData.savedLetters.push({ letter, image });
+    downloadData.handwriting[letter] = image;
   });
+
+  // Create an SVG element
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", "800"); // Adjust as needed
+  svg.setAttribute("height", `${savedLetters.length * 100}`); // Adjust as needed
+
+  // Embed each image within the SVG
+  savedLetters.forEach((letter, index) => {
+    const imageSrc = localStorage.getItem(letter);
+    const img = document.createElementNS(svgNS, "image");
+    img.setAttributeNS(null, "x", "0");
+    img.setAttributeNS(null, "y", `${index * 100}`);
+    img.setAttributeNS(null, "width", "800"); // Adjust as needed
+    img.setAttributeNS(null, "height", "100"); // Adjust as needed
+    img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', imageSrc);
+    svg.appendChild(img);
+  });
+
+  // Serialize the SVG content to a string
+  const svgData = new XMLSerializer().serializeToString(svg);
+
+  // Create a Blob from the SVG data
+  const blob = new Blob([svgData], { type: "image/svg+xml" });
+
+  // Create a link element
+  const link = document.createElement("a");
+
+  // Create a URL for the Blob and set it as the href of the link
+  link.href = URL.createObjectURL(blob);
+
+  // Set the download attribute of the link to specify the filename
+  link.download = "handwriting_images.svg";
+
+  // Append the link to the body
+  document.body.appendChild(link);
+
+  // Programmatically click the link to trigger the download
+  link.click();
+
+  // Remove the link from the document
+  document.body.removeChild(link);
+};
+
+// Function to update the tool, keyboard and canvas
+onMount(() => {
+  drawingCtx = drawingCanvas.getContext("2d");
+  startDrawing();
+  const saved = JSON.parse(localStorage.getItem("savedLetters")) || [];
+  savedLetters.set(saved);
+
+  saved.forEach((letter) => {
+    const image = localStorage.getItem(letter);
+    handwriting.update((h) => {
+      h[letter] = image;
+      return h;
+    });
+  });
+  updateCanvas(char);
+  window.addEventListener("keydown", handleKeyPress);
+});
+
+
+
 
   // Function to generate the alphabet, letters and numbers
   function generateAlphabet() {
