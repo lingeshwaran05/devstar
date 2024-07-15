@@ -1,23 +1,30 @@
 {
-    "name": "",
-    "description":"",
-    "contributors": [{
-        "name": "",
-        "githubId": ""
-    }, {
-        "name": "",
-        "githubId": ""
+  "name": "Resume Builder",
+  "description": "A dynamic resume builder application developed using Svelte. It allows users to input personal information, education, projects, skills, experience, and achievements. Features include form validation, dynamic updates, and PDF export capabilities using jsPDF, making it easy to create and customize professional resumes.",
+  "contributors": [
+    {
+      "name": "Pandranki Madhan",
+      "githubId": "Madhan-Pandranki"
     },
     {
-        "name": "",
-        "githubId": ""
+      "name": "Ganapathi Laxmi Narsimha",
+      "githubId": "Narsimha1609"
     },
     {
-        "name": "",
-        "githubId": ""
+      "name": "Saurabh Mamulkar",
+      "githubId": "SaurabhCM"
     },
     {
-        "name": "",
-        "githubId": ""
-    }]
+      "name": "Vedant Gawande",
+      "githubId": "vvgcoder "
+    },
+    {
+      "name": "Nunavath Venkatesh",
+      "githubId": "venkatesh200203"
+    },
+    {
+      "name": " Samruddhi Kakad",
+      "githubId": "Samruddhilarious"
+    }
+  ]
 }
