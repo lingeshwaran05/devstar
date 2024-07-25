@@ -1,9 +1,9 @@
 {
-    "name": "",
-    "description":"",
+    "name": "Annotation Tool",
+    "description":"It consist of multiple annotation Tools required to a machine learning begginer ",
     "contributors": [{
-        "name": "",
-        "githubId": ""
+        "name": "Sai Suresh Gulve",
+        "githubId": "https://github.com/Saigulve2004"
     }, {
         "name": "",
         "githubId": ""
