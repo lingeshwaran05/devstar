@@ -1,3 +1,4 @@
+team-71
 {
     "name": "Annotation Tool",
     "description":"An Annotation tool is a text or drawing tool that helps you add information to text, an image, a database, or any other piece of content.",
@@ -5,8 +6,8 @@
         "name": "Tanvi Cheulkar",
         "githubId": "https://github.com/tanvi998"
     }, {
-        "name": "",
-        "githubId": ""
+        "name": "Sai Suresh Gulve",
+        "githubId": "https://github.com/Saigulve2004"
     },
     {
         "name": "",
@@ -20,4 +21,5 @@
         "name": "",
         "githubId": ""
     }]
+ team-71
 }
