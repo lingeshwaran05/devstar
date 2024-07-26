@@ -1,6 +1,6 @@
 {
-    "name": "Annotation tool",
-    "description":"An annotation tool is a text or drawing tool that helps you add information to text, an image, a database, or any other piece of content.",
+    "name": "Annotation Tool",
+    "description":"An Annotation tool is a text or drawing tool that helps you add information to text, an image, a database, or any other piece of content.",
     "contributors": [{
         "name": "Tanvi Cheulkar",
         "githubId": "https://github.com/tanvi998"
