@@ -1,0 +1,88 @@
+<script>
+	import Container from '../components/Container.svelte';
+	import { MetaTags } from 'svelte-meta-tags';
+	import TweetCard from '../components/TweetCard.svelte';
+
+	const themes = ['light', 'dim', 'dark'];
+	let selectedTheme = 'light';
+</script>
+
+<MetaTags
+	title="Tweet Tweet"
+	description="A generator website to create a fake tweets."
+	additionalMetaTags={[
+		{
+			property: 'dc:creator',
+			content: 'Tanvi Cheulkar'
+		},
+		{
+			name: 'application-name',
+			content: 'Tweet Tweet'
+		},
+		{
+			httpEquiv: 'x-ua-compatible',
+			content: 'IE=edge; chrome=1'
+		}
+	]}
+/>
+
+<section class="pt-24 md:pt-36 pb-8">
+	<Container classes="grid items-start lg:grid-cols-2 gap-6 lg:gap-8">
+		<div>
+			<h1 class="text-3xl font-bold mb-5">How to Use this Tweet generator </h1>
+			<ul class="list-disc pl-6 mb-6">
+				<li class="mb-2">
+					Everything inside a <span class="border-2 border-dashed">dashed border</span> is editable.
+					Click on one to edit it.
+				</li>
+				<li>
+					Clicking on a Tweet's <i class="far fa-fw fa-ellipsis-h border-2 border-dashed" /> icon will
+					bring up additional options, such as adding an image and toggling the verified badge.
+				</li>
+			</ul>
+			<h1 class="text-3xl font-bold mb-5">Configuration</h1>
+			<form class="mb-6">
+				<p class="mb-3 font-bold">Theme</p>
+				<div class="mb-5 accent-cyan-600">
+					{#each themes as theme}
+						<label for={theme} class="mr-4 capitalize cursor-pointer">
+							<input
+								type="radio"
+								class="mr-2"
+								name="theme"
+								id={theme}
+								value={theme}
+								bind:group={selectedTheme}
+							/>
+							{theme}
+						</label>
+					{/each}
+				</div>
+			</form>
+			<footer class="mt-16 lg:block hidden">
+				<p class="text-sm">
+					&copy; 2024 Tweet Tweet | <a
+						class="font-bold"
+						href="https://tanvi-cheulkar.my.id"
+						aria-label="Author">Tanvi Cheulkar and Team</a
+					>
+				</p>
+			</footer>
+		</div>
+		<div>
+			<h2 class="text-3xl font-bold mb-5">Preview</h2>
+			<TweetCard theme={selectedTheme} />
+		</div>
+	</Container>
+	<footer class="mt-16 lg:hidden block">
+		<Container>
+			<p class="text-sm">
+				&copy; 2024 Tweet Tweet | <a
+					class="font-bold"
+					href="https://tanvi-cheulkar.my.id"
+					aria-label="Author">Tanvi Cheulkar</a
+				>
+			</p>
+		</Container>
+	</footer>
+</section>
